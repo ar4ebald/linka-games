@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Игры для Линки</title>
+<meta name="description" content="Фанатские мини-игры про стримершу Линку (smilelinka) и корги Зевса.">
+<meta property="og:title" content="Игры для Линки">
+<meta property="og:description" content="Фанатские мини-игры про стримершу Линку (smilelinka) и корги Зевса.">
+<meta property="og:image" content="https://ar4ebald.github.io/linka-games/rybalka/preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Unbounded:wght@800&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0f0c1d;--panel:#1a1531;--line:#3a3163;--ink:#f7f0ff;--muted:#b4a9d8;--pink:#ff8cc6;color-scheme:dark}
+body{margin:0;background:var(--night);color:var(--ink);font:15px/1.5 'Nunito','Segoe UI',system-ui,sans-serif}
+main{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:48px 64px;display:grid;gap:28px}
+h1{font:800 clamp(28px,6vw,48px)/1.1 'Unbounded','Arial Black',sans-serif;margin:0;text-wrap:balance}
+h1 span{color:var(--pink)}
+.lead{color:var(--muted);margin:0;max-width:60ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.game{display:grid;gap:6px;padding:20px;border:2px solid var(--line);border-radius:16px;background:var(--panel);color:inherit;text-decoration:none}
+.game:hover,.game:focus-visible{border-color:var(--pink);outline:none}
+.emoji{font-size:40px;line-height:1}
+.name{font:800 20px/1.2 'Unbounded','Arial Black',sans-serif}
+.desc{color:var(--muted)}
+.play{color:var(--pink);font-weight:800}
+footer{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Игры для <span>Линки</span></h1>
+  </header>
+  <p class="lead">Фанатские мини-игры про стримершу Линку, корги Зевса и жителей подвала. Сделано зрителем в подарок.</p>
+  <div class="grid">
+      <a class="game" href="rybalka/">
+        <span class="emoji" aria-hidden="true">🎣</span>
+        <span class="name">Линка на рыбалке</span>
+        <span class="desc">Ночная рыбалка на стриме: корги Зевс, пивко, слетающий эфир и улов из её мемов — от карася до серой галочки.</span>
+        <span class="play">Играть →</span>
+      </a>
+  </div>
+  <footer>(если что это просто игры)</footer>
+</main>
+</body>
+</html>

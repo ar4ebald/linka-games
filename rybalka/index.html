@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Ночная рыбалка на стриме: корги Зевс, пивко, слетающий эфир и улов из её мемов — от карася до серой галочки.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Линка на рыбалке">
+<meta property="og:description" content="Ночная рыбалка на стриме: корги Зевс, пивко, слетающий эфир и улов из её мемов — от карася до серой галочки.">
+<meta property="og:url" content="https://ar4ebald.github.io/linka-games/rybalka/">
+<meta property="og:image" content="https://ar4ebald.github.io/linka-games/rybalka/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>Линка на рыбалке</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: ночной пирс — сцена 16:9 слева, чат эфира справа (на телефоне — под сценой) */
+:root{
+  --night:#0f0c1d; --panel:#1a1531; --panel-2:#241d44; --line:#3a3163;
+  --ink:#f7f0ff; --muted:#b4a9d8; --pink:#ff8cc6; --pink-deep:#e0569c;
+  --blonde:#f6e3a1; --live:#ff3d63; --ok:#7be3a4; --warn:#ffcc66;
+  --font-display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --font-body:'Nunito','Segoe UI',system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{background:var(--night);color:var(--ink)}
+body{font-family:var(--font-body);font-size:15px;line-height:1.4}
+.wrap{max-width:1260px;margin:0 auto;padding-inline:16px;padding-block:16px 28px;display:grid;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px}
+h1{font-family:var(--font-display);font-weight:800;font-size:clamp(20px,3.2vw,30px);margin:0;letter-spacing:.01em;text-wrap:balance}
+h1 span{color:var(--pink)}
+.best{color:var(--muted);font-variant-numeric:tabular-nums}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:14px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.stage{min-width:0;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.screen{position:relative}
+canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;background:#120e26;touch-action:none;cursor:pointer;outline:none}
+canvas:focus-visible{box-shadow:0 0 0 3px var(--pink)}
+.rotate{display:none;margin:0 0 8px;padding:8px 12px;border-radius:10px;background:var(--panel-2);color:var(--muted);font-weight:800}
+@media (max-width:640px) and (orientation:portrait){.rotate{display:block}}
+.hint-line{display:none;margin:6px 0 0;min-height:1.35em;font:800 15px/1.35 var(--font-body);text-align:center;color:var(--ink)}
+@media (max-width:700px),(orientation:landscape) and (max-height:500px){.hint-line{display:block}}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.btn{font:800 15px/1 var(--font-body);color:var(--ink);background:var(--panel-2);border:2px solid var(--line);border-radius:12px;padding:10px 14px;min-height:44px;cursor:pointer;display:inline-flex;gap:8px;align-items:center;touch-action:manipulation}
+.btn:hover{border-color:var(--pink)}
+.btn:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--pink);border-color:var(--pink);color:#2a0d1f;font-family:var(--font-display);font-weight:800;font-size:16px;padding:14px 22px}
+.btn.primary:hover{background:#ffa3d2}
+.btn.ban{background:var(--live);border-color:var(--live);color:#fff}
+.btn .n{font-variant-numeric:tabular-nums;color:var(--pink)}
+.keys{color:var(--muted);font-size:13px;margin-left:auto}
+@media (hover:none){.keys{display:none}}
+.chat{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;height:min(560px,70vh);min-width:0}
+@media (max-width:900px){.chat{height:240px}}
+.chat h2{font:800 13px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;color:var(--muted)}
+.chat h2 b{color:var(--live)}
+.msgs{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:4px;font-size:14px;min-height:0}
+.msg{overflow-wrap:anywhere}
+.msg .nick{font-weight:900;margin-right:6px}
+.msg.sys{color:var(--muted);font-style:italic}
+.msg.linka .nick{color:var(--pink)}
+.msg.hater{background:#3a1830;border-radius:8px;padding:4px 6px}
+.msg.hater .ban{margin-left:6px;font:900 13px/1 var(--font-body);background:var(--live);color:#fff;border:0;border-radius:8px;padding:8px 12px;min-height:32px;cursor:pointer}
+.overlay{position:absolute;inset:0;border-radius:14px;background:rgba(12,9,26,.84);display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;z-index:5}
+@media (max-width:640px){.overlay{position:fixed;border-radius:0;z-index:20}}
+.card{margin:auto;max-width:520px;text-align:center;display:grid;gap:12px;justify-items:center}
+.card h2{font-family:var(--font-display);font-weight:800;font-size:clamp(20px,4vw,34px);margin:0;text-wrap:balance}
+.card h2 span{color:var(--pink)}
+.card p{margin:0;color:var(--muted)}
+.card .quote{color:var(--ink);font-size:18px;font-weight:800}
+.card ul{margin:0;padding:0;list-style:none;display:grid;gap:4px;color:var(--muted)}
+.card .fine{font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.stat{background:var(--panel-2);border-radius:12px;padding:8px 6px}
+.stat b{display:block;font:800 22px/1.2 var(--font-display);color:var(--pink);font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted)}
+.toggle{display:flex;gap:10px;align-items:center;cursor:pointer;color:var(--ink);font-weight:800;text-align:left}
+.toggle input{width:20px;height:20px;accent-color:var(--pink)}
+.toggle small{display:block;color:var(--muted);font-weight:600}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (max-width:560px){.card .quote{font-size:15px}.stat b{font-size:17px}}
+@media (orientation:landscape) and (max-height:500px){
+  .wrap{padding-block:4px 12px;gap:6px}
+  header{display:none}
+  .main{grid-template-columns:minmax(0,1fr)}
+  .stage{width:min(100%,calc((100vh - 96px)*16/9));width:min(100%,calc((100svh - 96px)*16/9));margin-inline:auto}
+  .controls{margin-top:6px}
+  .btn{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Линка <span>на рыбалке</span></h1>
+    <div class="best" id="best"></div>
+  </header>
+  <div class="main">
+    <div class="stage">
+      <p class="rotate">Поверни телефон горизонтально — так удобнее ловить.</p>
+      <div class="screen">
+        <canvas id="game" width="1920" height="1080" tabindex="-1" aria-label="Игровое поле: ночной пирс, Линка с удочкой"></canvas>
+        <div class="overlay" id="menu">
+          <div class="card">
+            <h2>Ночной эфирчик <span>с удочкой</span></h2>
+            <p class="quote">«ребзи ,прикиньте ,я на рыбалке»</p>
+            <ul>
+              <li>Зажми и отпусти — заброс. Чем дальше, тем крупнее улов.</li>
+              <li>Поплавок нырнул — жми сразу. Потом держи, чтобы розовая зона ловила рыбу.</li>
+              <li>До 06:00 добей 1000 подписчиков и не усни.</li>
+              <li id="vibeTip"></li>
+            </ul>
+            <label class="toggle"><input type="checkbox" id="safe"> <span>Режим для стрима<small>напитки → клубничный мохито, всё 0+</small></span></label>
+            <button class="btn primary" id="startBtn">Запускаю эфирчик</button>
+            <p class="fine">(если что это просто игра)</p>
+          </div>
+        </div>
+        <div class="overlay" id="over" hidden>
+          <div class="card">
+            <h2 id="overTitle"></h2>
+            <p class="quote" id="overQuote"></p>
+            <div class="stats">
+              <div class="stat"><b id="sSubs">0</b><small>подписчики</small></div>
+              <div class="stat"><b id="sFish">0</b><small>рыба</small></div>
+              <div class="stat"><b id="sJunk">0</b><small>мусорки</small></div>
+            </div>
+            <p id="overRank"></p>
+            <p id="overBest"></p>
+            <label class="toggle"><input type="checkbox" id="safe2"> <span>Режим для стрима</span></label>
+            <button class="btn primary" id="againBtn">Ещё эфирчик</button>
+          </div>
+        </div>
+      </div>
+      <p class="hint-line" id="hintLine" aria-hidden="true"></p>
+      <div class="controls">
+        <button class="btn" id="beerBtn" disabled><span id="beerIcon">🍺</span> <span id="beerName">Пивко</span> <span class="n" id="beerN">×5</span></button>
+        <button class="btn" id="coffeeBtn" disabled>☕ Кофе <span class="n" id="coffeeN">×3</span></button>
+        <button class="btn ban" id="banBtn" hidden>🔨 Бан плохиша</button>
+        <button class="btn" id="muteBtn" aria-pressed="false">🔊 Звук</button>
+        <span class="keys" id="keys"></span>
+      </div>
+      <p class="sr-only" id="sr" aria-live="assertive" aria-atomic="true"></p>
+    </div>
+    <aside class="chat" aria-label="Чат эфира">
+      <h2><span>Чат эфира</span><b id="chatLive">● оффлайн</b></h2>
+      <div class="msgs" id="msgs" role="log" aria-live="off"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const W = 960, H = 540, PIER_Y = 330, WATER_Y = 300;
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
+const $ = id => document.getElementById(id);
+const rmq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduceMotion = rmq.matches;
+if (rmq.addEventListener) rmq.addEventListener('change', e => { reduceMotion = e.matches; });
+const EMOJI = '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+const BODY = '"Nunito","Segoe UI",system-ui,sans-serif';
+const DISPLAY = '"Unbounded","Arial Black",system-ui,sans-serif';
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const plural = (n, f) => f[n % 100 > 10 && n % 100 < 15 ? 2 : n % 10 === 1 ? 0 : n % 10 > 1 && n % 10 < 5 ? 1 : 2];
+const SUBS = ['подписчик', 'подписчика', 'подписчиков'];
+
+// ---------- canvas size ----------
+let S = 2;
+function fitCanvas() {
+  const cssW = cv.getBoundingClientRect().width || W;
+  S = clamp(Math.ceil(cssW * (window.devicePixelRatio || 1) / W * 4) / 4, 1, 2);
+  const bw = Math.round(W * S);
+  if (cv.width !== bw) { cv.width = bw; cv.height = Math.round(H * S); }
+}
+fitCanvas();
+if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe(cv); else window.addEventListener('resize', fitCanvas);
+
+// ---------- storage ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+// ---------- sound ----------
+let AC = null, muted = store.get('linka-fish-muted', false);
+function initAudio() {
+  if (AC) { if (AC.state !== 'running' && AC.resume) AC.resume().catch(() => {}); return; }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; }
+}
+function tone(freq, dur, type = 'sine', vol = 0.12, slide = 0, delay = 0) {
+  if (!AC || muted) return;
+  const t0 = AC.currentTime + delay;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t0);
+  if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t0 + dur);
+  g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g).connect(AC.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+}
+function noise(dur, vol = 0.15, freq = 900, delay = 0) {
+  if (!AC || muted) return;
+  const t0 = AC.currentTime + delay;
+  const len = Math.floor(AC.sampleRate * dur);
+  const buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+  s.buffer = buf; f.type = 'bandpass'; f.frequency.value = freq; g.gain.value = vol;
+  s.connect(f).connect(g).connect(AC.destination); s.start(t0);
+}
+const sfx = {
+  splash() { noise(0.35, 0.25, 700); tone(180, 0.2, 'sine', 0.08, -90); },
+  cast() { noise(0.25, 0.08, 2400); },
+  bite() { tone(880, 0.08, 'square', 0.07); tone(1320, 0.1, 'square', 0.07, 0, 0.09); },
+  tick() { tone(1800, 0.02, 'square', 0.025); },
+  catchIt(tier) {
+    const base = [523, 587, 659, 740, 880][tier] || 523;
+    [0, 4, 7, 12].forEach((s, i) => tone(base * Math.pow(2, s / 12), 0.16, 'triangle', 0.1, 0, i * 0.08));
+  },
+  fail() { tone(400, 0.25, 'sawtooth', 0.06, -250); },
+  drink() { noise(0.18, 0.12, 3000); tone(300, 0.08, 'sine', 0.1, -60, 0.25); tone(280, 0.08, 'sine', 0.1, -60, 0.42); },
+  bark() { tone(420, 0.09, 'square', 0.09, -120); tone(380, 0.1, 'square', 0.09, -140, 0.14); },
+  ping() { tone(1200, 0.05, 'sine', 0.03); },
+  crash() { tone(600, 0.4, 'sawtooth', 0.06, -450); },
+  win() { [0, 4, 7, 12, 16].forEach((s, i) => tone(523 * Math.pow(2, s / 12), 0.2, 'triangle', 0.1, 0, i * 0.1)); }
+};
+
+// ---------- content ----------
+const TIERS = [
+  { name: 'обычная', color: '#b4a9d8', w: 30 },
+  { name: 'необычная', color: '#7be3a4', w: 14 },
+  { name: 'редкая', color: '#6fb8ff', w: 5 },
+  { name: 'эпическая', color: '#c98bff', w: 2 },
+  { name: 'легендарная', color: '#ffcc66', w: 0.8 }
+];
+// kind: fish | junk; diff 0..1 — сложность вываживания; min — нужная дальность заброса
+const ITEMS = [
+  { id: 'karas', name: 'Карась', e: '🐟', kind: 'fish', tier: 0, value: 20, diff: 0.15, min: 0, q: ['карасик ,ну привет', 'капец какой маленький .. отпускаю ,расти', 'кто не знал ,я 10 лет занималась рыбалкой'] },
+  { id: 'okun', name: 'Окунь', e: '🐠', kind: 'fish', tier: 0, value: 30, diff: 0.3, min: 0, q: ['окунь ,прикиньте', 'А ты как научилась ловить ? Я :Сама :)'] },
+  { id: 'ersh', name: 'Ёрш', e: '🐡', kind: 'fish', tier: 1, value: 35, diff: 0.35, min: 0.1, q: ['колючий ,как мои хейтеры :)', 'ёрш .. не трогайте его'] },
+  { id: 'lesch', name: 'Лещ', e: '🐟', kind: 'fish', tier: 1, value: 50, diff: 0.45, min: 0.3, q: ['ЛЕЩ . кто заказывал леща ? признавайтесь'] },
+  { id: 'schuka', name: 'Щука', e: '🦈', kind: 'fish', tier: 2, value: 80, diff: 0.65, min: 0.5, q: ['ЩУКА . я в шоке', 'злая на весь мир ,как я ,когда голодная'] },
+  { id: 'som', name: 'Сом', e: '🐋', kind: 'fish', tier: 3, value: 250, diff: 0.85, min: 0.7, q: ['СОМ . ЭТО МОЙ РЕКОРД', 'Я В ШОКЕ ,ребята ,он больше Зевса'] },
+  { id: 'gold', name: 'Золотая рыбка', e: '🐠', kind: 'fish', tier: 4, value: 300, diff: 0.75, min: 0.4, gold: true, q: ['МОЯ МЕЧТА СБЫЛАСЬ', 'спасибо всем за исполнение моих мечт 😭🔥'] },
+  { id: 'wb', name: 'Коробка с ВБ', e: '📦', kind: 'junk', tier: 0, value: 20, diff: 0.1, min: 0, q: ['заказывала удочку ,пришло это .. 2 раза . КАК ???', 'курьер еще едет 👁️ ,часа 2 прошло ,вы угараете вб'] },
+  { id: 'sneaker', name: 'Кроссовка', e: '👟', kind: 'junk', tier: 0, value: 15, diff: 0.1, min: 0, q: ['Зевс пожевал мои любимые кроссовки (пасибо', 'это Зевс сюда закинул ,я уверена'] },
+  { id: 'boot', name: 'Сапог', e: '🥾', kind: 'junk', tier: 0, value: 10, diff: 0.1, min: 0, q: ['сапог . классика рыбалки', 'Зевсу бы в самый раз ,а то боты ему маленькие!!! да гспд ..'] },
+  { id: 'tazik', name: 'Красный тазик', e: '🪣', kind: 'junk', tier: 1, value: 35, diff: 0.2, min: 0, q: ['мой красный тазик !!! опять горячую воду отключили ?'] },
+  { id: 'alarm', name: 'Будильник', e: '⏰', kind: 'junk', tier: 1, value: 25, diff: 0.25, min: 0, energy: 10, q: ['будильник . мой главный враг . выкидываю обратно'] },
+  { id: 'phone', name: 'Телефон на 1%', e: '📱', kind: 'junk', tier: 1, value: 30, diff: 0.2, min: 0, q: ['так вот почему стрим слетал', 'щас телефон подзаряжу и в эфир'] },
+  { id: 'marshall', name: 'Наушники', e: '🎧', kind: 'junk', tier: 1, value: 35, diff: 0.25, min: 0.1, q: ['это больше музыкальные наушники', 'выпадают .. как всегда'] },
+  { id: 'pelmeni', name: 'Пельмени', e: '🥟', kind: 'junk', tier: 1, value: 40, diff: 0.2, min: 0, energy: 25, q: ['ПЕЛЬМЕНИ . они стоят на 1 месте из всех блюд', 'кстати я сьела целую пачку пельменей и не наелась …'] },
+  { id: 'can', name: 'Банка пивка', e: '🍺', kind: 'junk', tier: 1, value: 20, diff: 0.15, min: 0, can: true, q: ['пивко само приплыло .. это знак'], safeName: 'Мохито', safeE: '🍹', safeQ: ['мохито приплыл .. это знак', 'бутылка то моя новая протекает :( а я просто хотела хлебнуть мохито'] },
+  { id: 'star', name: 'Серёжка-звёздочка', e: '⭐', kind: 'junk', tier: 1, value: 40, diff: 0.3, min: 0.2, q: ['проверка на звёздочки .. нашлась !!!', 'я нашла свои Потерянные сережки ,но они уже не так нужны🤣'] },
+  { id: 'duck', name: 'Уточка', e: '🦆', kind: 'junk', tier: 1, value: 35, diff: 0.3, min: 0, q: ['вот эта уточка прикольная ,кстати'] },
+  { id: 'ryzhiy', name: 'Рыжая краска', e: '🧴', kind: 'junk', tier: 1, value: 20, diff: 0.2, min: 0, q: ['отстань ,рыжий оттенок', 'Оставляем блонд короче 😊🩷'] },
+  { id: 'mic', name: 'Микрофон', e: '🎤', kind: 'junk', tier: 1, value: 35, diff: 0.25, min: 0.2, q: ['микрофон еще подыхает пхаххаха'] },
+  { id: 'arbuz', name: 'Арбуз', e: '🍉', kind: 'junk', tier: 1, value: 30, diff: 0.2, min: 0, energy: 20, q: ['думала на всю ночь ,конечно за один раз всё съела как так'] },
+  { id: 'skates', name: 'Коньки', e: '⛸️', kind: 'junk', tier: 1, value: 30, diff: 0.25, min: 0.1, q: ['каток оказывается только завтра работает 🤡'] },
+  { id: 'skate', name: 'Скейт', e: '🛹', kind: 'junk', tier: 1, value: 35, diff: 0.3, min: 0.2, q: ['йоу ,скейт .. как думаете упаду с какого раза'] },
+  { id: 'hat', name: 'Ковбойская шляпа', e: '🤠', kind: 'junk', tier: 2, value: 60, diff: 0.35, min: 0.3, q: ['йоу ,ковбойша на связи !'] },
+  { id: 'rat', name: 'Покемон ??', e: '🐀', kind: 'junk', tier: 2, value: 50, diff: 0.55, min: 0.2, q: ['что это ,покемон ?', 'вы чё ,крысы ,что ли ? грызите лучше чипсы'] },
+  { id: 'deer', name: 'Олень ??', e: '🦌', kind: 'junk', tier: 2, value: 60, diff: 0.45, min: 0.3, q: ['это кто-то из стайки ваших бывших ?'] },
+  { id: 'labubu', name: 'Секретный монстрик', e: '🧸', kind: 'junk', tier: 2, value: 90, diff: 0.4, min: 0.4, q: ['секретный … в банке . ну конечно'] },
+  { id: 'halo', name: 'Нимб', e: '😇', kind: 'junk', tier: 2, value: 70, diff: 0.35, min: 0.3, q: ['а еще я ангел ,вы не знали ?'] },
+  { id: 'check', name: 'Серая галочка', e: '✔️', kind: 'junk', tier: 4, value: 200, diff: 0.6, min: 0.6, q: ['мне дали серую галочку … это сон ?'] }
+];
+const NICKS = ['жительподвала', 'ночная_сова', 'пельмешка', 'зевсофан', 'блонд4ever', 'карась_в_чате', 'сонныйзайка', 'рыбнадзор', 'кефирик', 'звёздочка_на_лбу', 'плед_для_зевса', 'пипяо_team', 'мохито_тян', 'клюёт_ли'];
+const NICK_COLORS = ['#7be3a4', '#6fb8ff', '#ffcc66', '#c98bff', '#ff9f7a', '#8ff0ff', '#f7a8ff'];
+const HATER_NICKS = ['плохиш_01', 'скучный_тип', 'хейтер3000'];
+const HATER_TEXT = ['скучно ,ничего не ловится', 'рыба у тебя ненастоящая', 'удочку держишь неправильно', 'а где рыба то'];
+
+// ---------- game state ----------
+let safeMode = store.get('linka-fish-safe', false);
+let G = null;
+let gameStarted = false;
+let gameId = 0;
+const CLOCK_START = 22 * 60, CLOCK_END = 30 * 60, NIGHT_SECONDS = 165;
+const CLOCK_RATE = (CLOCK_END - CLOCK_START) / NIGHT_SECONDS;
+const GOAL = 1000;
+
+const L = () => safeMode ? {
+  drink: 'мохито', drinkGen: 'мохито', drinkIcon: '🍹', drinkBtn: 'Мохито', vibeName: 'сахар',
+  drinkQ: ['клубничный мохито ,я всегда заказываю его в кофейнях', 'мохито (безалкогольный ,мам)', 'Сидит блин и пьет опять свой мохито'],
+  highQ: ['ВХАХАХАХВХ ИЗВИНИТЕ ВАЙБ', 'Извиняюсь но ору', 'сахарный вайб пошёл'],
+  ambientQ: [],
+  chatQ: ['мохито!!', 'сахарный вайб', 'за подписчиков 🍹'],
+  highChat: ['ей хватит сахара 😂', 'линка на сахаре'],
+  lastCall: 'ещё один — и сахарная кома .. точно ?',
+  endQ: 'сахарная кома .. всем спкнч 😂👍',
+  taskDrink: 'глоток мохито за подписчиков'
+} : {
+  drink: 'пивко', drinkGen: 'пивка', drinkIcon: '🍺', drinkBtn: 'Пивко', vibeName: 'вайб',
+  drinkQ: ['я вам разговорный видос засняла про пиво ,пожалуйста смейтесь', 'немного пива поподает в мой организм', 'сегодня пивко', 'пьем пиво и че'],
+  highQ: ['ВХАХАХАХВХ ИЗВИНИТЕ ВАЙБ', 'плачьте я выставила себя с пивом ..', 'Извиняюсь но ору'],
+  ambientQ: ['Так много читала о вреде алкоголя что решила бросить читать', 'пьем пиво и че'],
+  chatQ: ['а пивко?', 'алкострим!!', 'за подписчиков 🍺', 'линка не спать'],
+  highChat: ['ей хватит 😂', 'штормит пирс'],
+  lastCall: 'ещё одна — и я всё .. точно ?',
+  endQ: 'Ребята я пьяная , спокойной ночи 😂👍',
+  taskDrink: 'хлебни пивка за подписчиков'
+};
+
+function newGame() {
+  gameId++;
+  G = {
+    id: gameId, state: 'idle', t: 0, clock: CLOCK_START, energy: 100, vibe: 0, cans: 5, coffee: 3,
+    subs: 0, viewers: 12, fish: 0, junk: 0, drinks: 0,
+    power: 0, chargeT: 0, castPower: 0,
+    bob: { x: 0, y: 0, fromX: 0, fromY: 0, tx: 0, ty: 0, p: 0, nib: 0 },
+    waitT: 0, nibT: 0, biteT: 0, biteMax: 1, item: null,
+    reel: null, reveal: null, bubble: null, pose: 'idle', poseT: 0,
+    zeus: { bark: 0, happy: 0 }, crash: null, crashN: 0, sinceCrash: 0, sinceBark: 99,
+    task: null, lastTask: null, taskCD: 10, x2T: 0, noCrash: false, anil: false, anilUsed: false,
+    ambientT: 6, chatT: 2, lowWarned: false, highWarned: false, goalHit: false, lastCall: false, passOut: false,
+    saidAt: 0, holding: false, over: false, endReason: null
+  };
+}
+function later(fn, ms) { const id = gameId; setTimeout(() => { if (G && G.id === id && !G.over) fn(); }, ms); }
+
+// ---------- a11y ----------
+function announce(s) { const el = $('sr'); el.textContent = ''; requestAnimationFrame(() => { el.textContent = s; }); }
+
+// ---------- chat ----------
+const msgs = $('msgs');
+function addChat(nick, text, cls = '', color) {
+  const stick = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 40;
+  const el = document.createElement('div');
+  el.className = 'msg ' + cls;
+  if (nick) {
+    const n = document.createElement('span');
+    n.className = 'nick'; n.textContent = nick;
+    if (color) n.style.color = color;
+    el.appendChild(n);
+  }
+  el.appendChild(document.createTextNode(text));
+  msgs.appendChild(el);
+  while (msgs.children.length > 60) msgs.removeChild(msgs.firstChild);
+  if (stick) msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+function viewerSay(text) {
+  const i = Math.floor(Math.random() * NICKS.length);
+  addChat(NICKS[i], text, '', NICK_COLORS[i % NICK_COLORS.length]);
+}
+function sysSay(text) { addChat('', text, 'sys'); }
+let pendingBan = null;
+function clearPendingBan() { pendingBan = null; $('banBtn').hidden = true; }
+function spawnHater() {
+  if (!G || G.over || !gameStarted) return;
+  const el = addChat(pick(HATER_NICKS), pick(HATER_TEXT), 'hater', '#ff7a9a');
+  const b = document.createElement('button');
+  b.className = 'ban'; b.textContent = 'бан';
+  b.addEventListener('click', e => {
+    if (!G || G.over || b.disabled) return;
+    b.disabled = true; b.textContent = 'забанен';
+    el.style.opacity = '0.55';
+    if (pendingBan === b) clearPendingBan();
+    addChat('linka', 'бан :) я обычно баню всегда плохишей', 'linka');
+    G.subs += 15; G.viewers += 3; checkGoal(); sfx.ping();
+    taskEvent({ type: 'ban' });
+    refocus(e);
+  });
+  el.appendChild(b);
+  pendingBan = b; $('banBtn').hidden = false;
+}
+
+// ---------- speech ----------
+function say(text, dur = 2.8) { if (G) G.bubble = { text, t: 0, dur }; }
+function setPose(p, dur = 0) { G.pose = p; G.poseT = dur; }
+
+// ---------- tasks ----------
+function makeTasks() {
+  return [
+    { id: 'karas', text: 'поймай карася', need: 1, reward: 60, target: it => it.id === 'karas', test: e => e.type === 'catch' && e.item.id === 'karas' },
+    { id: 'okun', text: 'поймай окуня', need: 1, reward: 60, target: it => it.id === 'okun', test: e => e.type === 'catch' && e.item.id === 'okun' },
+    { id: 'junk', text: 'вылови 2 мусорки', need: 2, reward: 70, test: e => e.type === 'catch' && e.item.kind === 'junk' },
+    { id: 'far', text: 'закинь подальше и поймай рыбу', need: 1, reward: 90, test: e => e.type === 'catch' && e.item.kind === 'fish' && e.power > 0.72 },
+    { id: 'drink', text: L().taskDrink, need: 1, reward: 40, test: e => e.type === 'drink', ok: () => G.cans > 0 && G.vibe < 70 },
+    { id: 'ban', text: 'забань плохиша в чате', need: 1, reward: 50, test: e => e.type === 'ban', start: () => later(spawnHater, 1200) },
+    { id: 'rare', text: 'поймай что-то редкое', need: 1, reward: 120, test: e => e.type === 'catch' && e.item.tier >= 2 }
+  ];
+}
+function newTask() {
+  const pool = makeTasks().filter(t => !t.ok || t.ok());
+  const fresh = pool.filter(x => x.id !== G.lastTask);
+  const t = pick(fresh.length ? fresh : pool);
+  G.task = { ...t, have: 0, time: 45, max: 45 };
+  G.lastTask = t.id;
+  sysSay('Задание от чата: ' + t.text + ' (награда: танец и +' + t.reward + ')');
+  announce('Задание от чата: ' + t.text);
+  if (t.start) t.start();
+}
+function taskEvent(e) {
+  if (!G.task || G.over) return;
+  if (G.task.test(e)) {
+    G.task.have++;
+    if (G.task.have >= G.task.need) {
+      const r = gain(G.task.reward);
+      sysSay('Задание выполнено! +' + r);
+      say('задание выполнено ,ловите танец', 2.4);
+      setPose('dance', 2.2); sfx.win();
+      viewerSay('ТАНЕЦ!!!'); viewerSay('ВХАХАХ');
+      G.task = null; G.taskCD = rand(14, 20);
+    }
+  }
+}
+
+// ---------- helpers ----------
+function mult() { return (1 + G.vibe / 200) * (G.x2T > 0 ? 2 : 1); }
+function checkGoal() {
+  if (!G.goalHit && G.subs >= GOAL) { G.goalHit = true; sysSay('Добили ' + GOAL + ' подписчиков! ЗАЛЕТЕЛО!'); viewerSay('ЗАЛЕТЕЛО!!!'); sfx.win(); }
+}
+function gain(v) { const r = Math.round(v * mult()); G.subs += r; checkGoal(); return r; }
+function luck() { return clamp(G.vibe / 100 * 0.8 + G.castPower * 0.4, 0, 1.2); }
+function rodTip() {
+  const x = 250, y = PIER_Y;
+  if (G.state === 'charging') { const k = G.power; return { x: x + 40 - k * 120, y: y - 205 + k * 20 }; }
+  if (G.state === 'reeling') { const k = G.holding ? 1 : 0.4; return { x: x + 150 - k * 20, y: y - 200 - k * 8 }; }
+  return { x: x + 175, y: y - 190 };
+}
+function itemName(it) { return safeMode && it.safeName ? it.safeName : it.name; }
+function itemEmoji(it) { return safeMode && it.safeE ? it.safeE : it.e; }
+function itemQuote(it) { return pick(safeMode && it.safeQ ? it.safeQ : it.q); }
+
+function pickItem() {
+  if (G.anil) { G.anil = false; return ITEMS.find(i => i.id === 'gold'); }
+  const lk = luck(), p = G.castPower;
+  const bag = [];
+  let total = 0;
+  for (const it of ITEMS) {
+    if (p + 0.05 < it.min) continue;
+    let w = TIERS[it.tier].w;
+    if (it.tier === 2) w *= 1 + lk * 2.5;
+    if (it.tier === 3) w *= 1 + lk * 3;
+    if (it.tier === 4) w *= 1 + lk * 4;
+    if (it.kind === 'fish' && it.tier <= 1) w *= 2.2;
+    if (G.task && G.task.target && G.task.target(it)) w *= 3;
+    bag.push([it, w]); total += w;
+  }
+  let r = Math.random() * total;
+  for (const [it, w] of bag) { r -= w; if (r <= 0) return it; }
+  return bag[0][0];
+}
+
+// ---------- actions ----------
+function cast() {
+  G.castPower = G.power;
+  const p = G.castPower;
+  G.bob.fromX = 250 + 175; G.bob.fromY = PIER_Y - 190;
+  G.bob.tx = 450 + p * 380; G.bob.ty = 402 - p * 72;
+  G.bob.p = 0; G.state = 'casting';
+  setPose('cast', 0.5); sfx.cast();
+  if (p > 0.8) say('опа ,далеко', 1.6); else if (p < 0.2) say('ну такое .. близко', 1.6); else if (Math.random() < 0.4) say(pick(['закидываю ..', 'поехали', 'клюй ,клюй']), 1.6);
+}
+function startWaiting() {
+  G.state = 'waiting';
+  G.waitT = rand(2.4, 6) * (1 - luck() * 0.25);
+  G.nibT = rand(0.6, 1.6);
+  G.bob.x = G.bob.tx; G.bob.y = G.bob.ty;
+  sfx.splash();
+}
+function startBite() {
+  G.zeus.bark = 0; G.bob.nib = 0;
+  G.item = pickItem();
+  G.state = 'bite';
+  G.biteMax = clamp(1.0 - G.vibe * 0.003, 0.7, 1.0);
+  G.biteT = G.biteMax;
+  sfx.bite(); announce('Клюёт! Жми');
+  say(pick(['ОПА', 'опачки !', 'клюёт !!!']), 1.2);
+}
+function startReel() {
+  const d = G.item.diff;
+  G.reel = { zone: 0.1, vel: 0, zoneH: clamp(0.36 - d * 0.14 - G.vibe * 0.0005, 0.17, 0.36), fish: 0.35, target: 0.5, ft: 0.5, progress: 0.3, tick: 0, inside: false };
+  G.state = 'reeling';
+  setPose('reel');
+}
+function endCast() {
+  G.state = 'idle'; G.item = null; G.reel = null; G.zeus.bark = 0; setPose('idle');
+}
+function catchSuccess() {
+  const it = G.item;
+  if (it.kind === 'fish') G.fish++; else G.junk++;
+  let bonus = '';
+  if (it.energy) { G.energy = clamp(G.energy + it.energy, 0, 100); bonus = '+' + it.energy + ' бодрости'; }
+  if (it.can) { G.cans++; bonus = '+1 ' + L().drinkGen; }
+  if (it.gold) bonus = grantWish();
+  const got = gain(it.value);
+  G.viewers += 2 + it.tier * 3;
+  const quote = itemQuote(it);
+  G.reveal = { item: it, gain: got, quote, bonus, t: 0 };
+  G.state = 'reveal';
+  setPose('cheer', 1.6);
+  sfx.catchIt(it.tier);
+  announce(itemName(it) + ', +' + got + ' ' + plural(got, SUBS));
+  const tierChat = [
+    ['норм', '+', 'клюёт!', 'ОПА'],
+    ['ОПА', 'ВХАХАХ', 'неплохо', 'тащи ещё'],
+    ['ОГОГО', 'ЗАЛЕТЕЛО', 'клип!!', 'линка тащи'],
+    ['Я В ШОКЕ', 'РЕКОРД', 'клип клип клип'],
+    ['ЛЕГЕНДА', 'ЧТООО', 'я в шоке', 'скрин!!']
+  ][it.tier];
+  viewerSay(pick(tierChat));
+  if (it.id === 'hat') viewerSay('Привет ковбойша');
+  else if (it.id === 'karas') viewerSay('карасик 😂');
+  else if (it.kind === 'junk' && Math.random() < 0.6) viewerSay(pick(['мусорка 😂', 'рыбалка на ВБ', 'это не рыба это ВБ', 'это Зевс подкинул']));
+  taskEvent({ type: 'catch', item: it, power: G.castPower });
+  updateButtons();
+}
+function grantWish() {
+  const wishes = [
+    ['сон для слабаков', () => { G.energy = 100; }],
+    ['пусть стрим больше не слетает', () => { G.noCrash = true; }],
+    ['+2 ' + L().drinkGen, () => { G.cans += 2; }],
+    ['x2 подписчики на 30 секунд', () => { G.x2T = 30; }]
+  ];
+  const [text, fn] = pick(wishes); fn();
+  return 'желание: ' + text;
+}
+function handsBusy() { return G.state === 'reeling' || G.state === 'charging' || G.state === 'casting'; }
+function drink() {
+  if (!G || G.over || !gameStarted) return;
+  if (G.cans <= 0) { say('всё кончилось .. пипяо', 1.8); return; }
+  if (handsBusy()) { say('руки заняты !!', 1.2); return; }
+  if (G.vibe + 22 >= 100 && !G.lastCall) {
+    G.lastCall = true; say(L().lastCall, 2.4); viewerSay(pick(L().highChat)); return;
+  }
+  G.cans--; G.drinks++;
+  const nv = G.vibe + 22;
+  G.vibe = Math.min(100, nv);
+  if (nv >= 100) G.passOut = true;
+  gain(5); G.viewers += 4;
+  setPose('drink', 1.1); sfx.drink();
+  say(G.vibe > 60 ? pick(L().highQ) : pick(L().drinkQ), 2.8);
+  viewerSay(pick(L().chatQ));
+  if (G.vibe > 80 && !G.highWarned) { G.highWarned = true; viewerSay(pick(L().highChat)); }
+  taskEvent({ type: 'drink' });
+  updateButtons();
+}
+function coffee() {
+  if (!G || G.over || !gameStarted) return;
+  if (G.coffee <= 0) { say('термос пустой ..', 1.6); return; }
+  if (handsBusy()) { say('руки заняты !!', 1.2); return; }
+  G.coffee--; G.energy = clamp(G.energy + 35, 0, 100); G.vibe = clamp(G.vibe - 8, 0, 100);
+  setPose('drink', 1.1); sfx.drink();
+  say(pick(['кофе из термоса .. сон для слабаков', 'Думали уснула? а нет', 'всё ,я бодрая']), 2.4);
+  updateButtons();
+}
+
+// ---------- input ----------
+let pressed = false;
+function press() {
+  if (!gameStarted || !G || G.over) return;
+  initAudio();
+  if (pressed) return;
+  pressed = true; G.holding = true;
+  switch (G.state) {
+    case 'idle': G.state = 'charging'; G.chargeT = 0; G.power = 0; setPose('charge'); break;
+    case 'waiting':
+      if (G.zeus.bark > 0) { G.zeus.bark = 0; G.zeus.happy = 1.5; say(pick(['Зевсик ,тихо !!', 'Царь ,тихо !!', 'ЦЕЗАРь ,фу !!']), 1.4); }
+      else if (G.sinceBark < 2.2) { /* поздно успокоила — без второго штрафа */ }
+      else { G.waitT += 2; say(pick(['рано .. спугнула', 'ой ,рано дёрнула', 'терпение ,Линка ,терпение']), 1.6); sfx.fail(); }
+      break;
+    case 'bite': startReel(); break;
+    case 'reveal': if (G.reveal.t > 0.45) { G.reveal = null; endCast(); } break;
+    case 'crash':
+      G.crash.mash++; sfx.tick();
+      if (G.crash.mash >= 3) {
+        G.state = G.crash.prev; G.crash = null; G.sinceCrash = 0;
+        say('перезапуск стрима .. мы снова тут', 2); sysSay('Эфир возобновлён');
+      }
+      break;
+  }
+}
+function release() {
+  if (!pressed) return;
+  pressed = false;
+  if (!G) return;
+  G.holding = false;
+  if (G.state === 'charging' && !G.over) cast();
+}
+let activePtr = null;
+cv.addEventListener('pointerdown', e => {
+  if (e.button !== 0 || activePtr !== null) return;
+  activePtr = e.pointerId;
+  e.preventDefault();
+  cv.focus({ preventScroll: true });
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+  press();
+});
+const ptrUp = e => { if (e.pointerId !== activePtr) return; activePtr = null; release(); };
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(n => cv.addEventListener(n, ptrUp));
+cv.addEventListener('contextmenu', e => e.preventDefault());
+// секрет: набрать ANIL (её имя наоборот) — следующей клюнет золотая рыбка, раз за ночь
+let typed = [];
+const SECRET = ['KeyA', 'KeyN', 'KeyI', 'KeyL'];
+window.addEventListener('keydown', e => {
+  const isAct = e.code === 'Space' || e.code === 'Enter';
+  if (isAct && e.repeat) { e.preventDefault(); return; }
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') && isAct) return;
+  if (isAct) { e.preventDefault(); press(); return; }
+  if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.code === 'KeyB') drink();
+  else if (e.code === 'KeyC') coffee();
+  else if (e.code === 'KeyM') toggleMute();
+  typed = typed.concat(e.code).slice(-4);
+  if (G && gameStarted && !G.over && !G.anilUsed && typed.join() === SECRET.join()) {
+    G.anil = true; G.anilUsed = true; typed = []; viewerSay('кто-то знает секрет 👀'); say('Моё анил 🤭', 1.8); sfx.win();
+  }
+});
+window.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'Enter') release(); });
+window.addEventListener('blur', () => { activePtr = null; release(); });
+
+// ---------- buttons ----------
+function refocus(e) { if (e && e.detail > 0 && gameStarted && G && !G.over) cv.focus({ preventScroll: true }); }
+function updateButtons() {
+  const ll = L();
+  $('beerIcon').textContent = ll.drinkIcon; $('beerName').textContent = ll.drinkBtn;
+  const on = gameStarted && G && !G.over;
+  $('beerN').textContent = '×' + (G ? G.cans : 5);
+  $('coffeeN').textContent = '×' + (G ? G.coffee : 3);
+  $('beerBtn').disabled = !on || G.cans <= 0;
+  $('coffeeBtn').disabled = !on || G.coffee <= 0;
+  $('keys').textContent = 'Пробел — удочка · B — ' + ll.drink + ' · C — кофе · M — звук';
+  $('vibeTip').textContent = ll.drinkBtn + ' поднимает ' + ll.vibeName + ' и улов ,но на 100% эфир окончен.';
+}
+function toggleMute() {
+  muted = !muted; store.set('linka-fish-muted', muted);
+  $('muteBtn').textContent = muted ? '🔇 Без звука' : '🔊 Звук';
+  $('muteBtn').setAttribute('aria-pressed', String(muted));
+}
+$('beerBtn').addEventListener('click', e => { drink(); refocus(e); });
+$('coffeeBtn').addEventListener('click', e => { coffee(); refocus(e); });
+$('muteBtn').addEventListener('click', e => { toggleMute(); refocus(e); });
+$('banBtn').addEventListener('click', e => { if (pendingBan) pendingBan.click(); refocus(e); });
+function setSafe(v) {
+  safeMode = v; store.set('linka-fish-safe', v);
+  $('safe').checked = v; $('safe2').checked = v; updateButtons();
+}
+$('safe').checked = safeMode; $('safe2').checked = safeMode;
+$('safe').addEventListener('change', e => setSafe(e.target.checked));
+$('safe2').addEventListener('change', e => setSafe(e.target.checked));
+function showBest() {
+  const b = store.get('linka-fish-best', 0);
+  $('best').textContent = b ? 'Рекорд: ' + b + ' ' + plural(b, SUBS) : '';
+}
+let overAt = 0;
+function startGame() {
+  initAudio();
+  newGame(); gameStarted = true;
+  $('menu').hidden = true; $('over').hidden = true;
+  msgs.innerHTML = ''; clearPendingBan();
+  $('chatLive').textContent = '● в эфире';
+  sysSay('Трансляция началась');
+  say('запускаю эфирчик 🎣 ребзи ,я на рыбалке', 3.2);
+  viewerSay('ОПА рыбалка'); viewerSay('Зевсик 😍');
+  updateButtons();
+  cv.tabIndex = 0;
+  cv.focus({ preventScroll: true });
+}
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', () => { if (performance.now() - overAt < 700) return; startGame(); });
+
+function endGame(reason) {
+  if (G.over) return;
+  G.over = true; G.endReason = reason;
+  pressed = false; G.holding = false; activePtr = null;
+  G.state = 'over';
+  clearPendingBan();
+  const best = store.get('linka-fish-best', 0);
+  const isBest = G.subs > best;
+  if (isBest) store.set('linka-fish-best', G.subs);
+  const titles = {
+    dawn: ['06:00. Всем <span>спкнч</span>', 'всем карасикам спкнч 🦋 спасибо кто был ❤️'],
+    sleep: ['Уснула <span>на стриме</span>', 'прийдется стоять в углу .. уснула на стриме'],
+    vibe: [safeMode ? 'Сахарная <span>кома</span>' : 'Ребята, я <span>пьяная</span>', L().endQ]
+  }[reason];
+  $('overTitle').innerHTML = titles[0];
+  $('overQuote').textContent = '«' + titles[1] + '»';
+  $('sSubs').textContent = G.subs; $('sFish').textContent = G.fish; $('sJunk').textContent = G.junk;
+  const rank = G.subs >= 1500 ? 'рыбачка года' : G.subs >= GOAL ? 'я получается звезда да ? 🫣' : G.subs >= 500 ? 'Типо популярная? 😂' : 'Просто Чилловая Мадам с удочкой';
+  $('overRank').textContent = 'Звание: ' + rank + (G.drinks ? ' · выпито ' + L().drinkGen + ': ' + G.drinks : '');
+  $('overBest').textContent = isBest ? 'Новый рекорд!' : (best ? 'Рекорд: ' + best + ' ' + plural(best, SUBS) : '');
+  $('safe2').checked = safeMode;
+  $('chatLive').textContent = '● оффлайн';
+  $('hintLine').textContent = '';
+  sysSay('Трансляция завершена');
+  viewerSay(reason === 'dawn' ? 'спкнч 🦋' : reason === 'sleep' ? 'она уснула 😂 спкнч' : 'ВХАХАХ спкнч');
+  announce('Эфир окончен. ' + G.subs + ' ' + plural(G.subs, SUBS));
+  const id = G.id;
+  setTimeout(() => { if (!G || G.id !== id) return; $('over').hidden = false; overAt = performance.now(); $('againBtn').focus(); }, reason === 'dawn' ? 600 : 1400);
+  setPose(reason === 'vibe' || reason === 'sleep' ? 'sleep' : 'cheer', 99);
+  cv.tabIndex = -1;
+  showBest(); updateButtons();
+}
+
+// ---------- update ----------
+const CLOCK_SAY = [
+  [23 * 60 + 26, () => 'норм что я сижу на пирсе в 23:26 ,пью ' + (safeMode ? 'мохито' : 'пиво') + ' ,а вставать мне в 6 утра 😔✌🏼'],
+  [26 * 60 + 40, () => 'а вы реально подумали , что я иду спать? вы что еще нет 3-х часов ночи 😌']
+];
+function update(dt) {
+  if (!G) return;
+  G.t += dt;
+  if (G.bubble) { G.bubble.t += dt; if (G.bubble.t > G.bubble.dur) G.bubble = null; }
+  if (G.poseT > 0) { G.poseT -= dt; if (G.poseT <= 0 && !G.over) setPose(G.state === 'reeling' ? 'reel' : 'idle'); }
+  if (G.zeus.happy > 0) G.zeus.happy -= dt;
+  if (!gameStarted || G.over) return;
+
+  const paused = G.state === 'reveal';
+  if (!paused) {
+    G.clock += CLOCK_RATE * dt;
+    G.energy -= (0.55 + G.vibe * 0.004) * dt;
+    G.vibe = Math.max(0, G.vibe - 0.3 * dt);
+    if (G.vibe + 22 < 100) G.lastCall = false;
+    if (G.x2T > 0) G.x2T -= dt;
+    G.sinceCrash += dt; G.sinceBark += dt;
+    const target = 12 + G.subs / 9 + G.vibe / 6;
+    G.viewers = lerp(G.viewers, target, dt * 0.3);
+    while (G.saidAt < CLOCK_SAY.length && G.clock >= CLOCK_SAY[G.saidAt][0]) say(CLOCK_SAY[G.saidAt++][1](), 3.4);
+    G.chatT -= dt;
+    if (G.chatT <= 0) {
+      G.chatT = rand(2.5, 5.5);
+      const pool = ['клюёт?', 'сон для слабаков', 'ребзи я тут', 'вайб 🔥', 'Зевс топ', 'где рыба', '+', 'ночь ,рыбалка ,кайф', 'Зевсик 😍', 'когда сом', 'кто сглазил', 'лучший стрим', 'я с работы зашёл', 'ловим!!', 'поднажми'];
+      viewerSay(pick(G.vibe > 30 && L().chatQ.length ? pool.concat(L().chatQ) : pool));
+      if (Math.random() < 0.08) later(spawnHater, 400);
+    }
+    G.ambientT -= dt;
+    if (G.ambientT <= 0 && (G.state === 'waiting' || G.state === 'idle') && !G.bubble) {
+      G.ambientT = rand(8, 14);
+      say(pick(['ночью так хочется житььь', 'сон для слабаков', 'клюёт ? не клюёт ..', 'опа .. нет ,показалось', 'Зевсик ,сиди смирно', 'вообщем жду', 'капец почему так красиво', 'ребзи волк пробежал'].concat(L().ambientQ)), 2.6);
+    }
+    if (G.task) { G.task.time -= dt; if (G.task.time <= 0) { sysSay('Задание провалено'); viewerSay('сдулись получается'); G.task = null; G.taskCD = rand(10, 16); } }
+    else { G.taskCD -= dt; if (G.taskCD <= 0) newTask(); }
+    if (G.energy < 22 && !G.lowWarned) { G.lowWarned = true; say('глаза закрываются .. кофе где', 2.4); }
+    if (G.energy > 40) G.lowWarned = false;
+  }
+
+  switch (G.state) {
+    case 'charging': {
+      G.chargeT += dt;
+      const ph = (G.chargeT / 1.05) % 2;
+      G.power = ph < 1 ? ph : 2 - ph;
+      break;
+    }
+    case 'casting': {
+      G.bob.p += dt / 0.7;
+      const k = clamp(G.bob.p, 0, 1);
+      G.bob.x = lerp(G.bob.fromX, G.bob.tx, k);
+      G.bob.y = lerp(G.bob.fromY, G.bob.ty, k) - Math.sin(k * Math.PI) * (120 + G.castPower * 60);
+      if (G.bob.p >= 1) startWaiting();
+      break;
+    }
+    case 'waiting': {
+      G.waitT -= dt;
+      G.nibT -= dt;
+      if (G.nibT <= 0) { G.bob.nib = 0.35; G.nibT = rand(0.8, 2); }
+      if (G.bob.nib > 0) G.bob.nib -= dt;
+      if (G.zeus.bark > 0) {
+        G.zeus.bark -= dt;
+        if (G.zeus.bark <= 0) { G.waitT += 3; say('Зевсик ,ну ты чего .. всю рыбу распугал', 2.2); viewerSay('ЗЕВС 😂'); }
+      } else if (G.waitT > 1.4 && G.sinceBark > 18 && Math.random() < dt * 0.07) {
+        G.zeus.bark = 1.6; G.sinceBark = 0; sfx.bark();
+        if (!G.bubble) say('норм что Зевс в камыши лает ? там никого нет 💀', 1.6);
+      } else if (G.waitT > 1.4 && !G.noCrash && G.sinceCrash > 30 && Math.random() < dt * 0.05) {
+        G.crash = { t: 3.2, max: 3.2, mash: 0, prev: 'waiting' }; G.state = 'crash';
+        sfx.crash(); sysSay('Стрим слетел!');
+        say(G.crashN++ ? 'если сегодня стрим будет вылеталать по 4 раза я не знаю что с тобой сделаю Ютуббб' : 'Стрим опять слетел ,щас подзаряжу телефон', 2.8);
+        break;
+      }
+      if (G.waitT <= 0) startBite();
+      break;
+    }
+    case 'bite': {
+      G.biteT -= dt;
+      if (G.biteT <= 0) { say(pick(['сорвалось .. пипяо', 'получается я лох', 'КТО СГЛАЗИЛ ПРИЗНАВАЙТЕСЬ', 'ну пипяо']), 2); sfx.fail(); viewerSay(pick(['эх', 'кто сглазил', 'F'])); endCast(); }
+      break;
+    }
+    case 'reeling': {
+      const r = G.reel, d = G.item.diff;
+      const acc = G.holding ? 3.2 : -2.8;
+      r.vel = clamp(r.vel + acc * dt, -1.8, 1.8);
+      r.zone += r.vel * dt;
+      if (r.zone < 0) { r.zone = 0; r.vel *= -0.3; }
+      if (r.zone > 1 - r.zoneH) { r.zone = 1 - r.zoneH; r.vel *= -0.3; }
+      r.ft -= dt;
+      if (r.ft <= 0) {
+        r.target = clamp(r.fish + rand(-0.55, 0.55) * (0.35 + d * 0.7), 0.03, 0.97);
+        r.ft = rand(0.35, 1.3) * (1.2 - d * 0.5);
+      }
+      r.fish += (r.target - r.fish) * Math.min(1, dt * (1.5 + d * 2.5));
+      if (d > 0.55) r.fish = clamp(r.fish + Math.sin(G.t * 17) * 0.24 * d * dt, 0.02, 0.98);
+      const wob = Math.sin(G.t * 3.1) * (G.vibe / 100) * 0.07;
+      const z0 = r.zone + wob, z1 = z0 + r.zoneH;
+      const inside = r.fish >= z0 && r.fish <= z1;
+      r.progress += inside ? dt * 0.33 : -dt * (0.15 + d * 0.1);
+      r.inside = inside;
+      if (G.holding) { r.tick -= dt; if (r.tick <= 0) { r.tick = 0.09; sfx.tick(); } }
+      if (r.progress >= 1) catchSuccess();
+      else if (r.progress <= 0) {
+        say(pick(d > 0.5 ? ['леска бб', 'ушла .. капец', 'ну и плыви :)', 'капец я неуклюжая'] : ['ушла .. капец', 'ну и плыви :)', 'пипяо', 'капец я неуклюжая']), 2);
+        sfx.fail(); viewerSay(pick(['нееет', 'F', 'эх'])); endCast();
+      }
+      break;
+    }
+    case 'reveal': {
+      G.reveal.t += dt;
+      if (G.reveal.t > 3.4) { G.reveal = null; endCast(); }
+      break;
+    }
+    case 'crash': {
+      G.crash.t -= dt;
+      if (G.crash.t <= 0) {
+        G.viewers *= 0.45; G.subs = Math.max(0, G.subs - 20);
+        say('Стрим ббхулся', 2); sysSay('Трансляция прервалась. Зрители разбежались'); viewerSay('где стрим??');
+        G.state = G.crash.prev; G.crash = null; G.sinceCrash = 0;
+      }
+      break;
+    }
+  }
+
+  if (G.clock >= CLOCK_END) endGame('dawn');
+  else if (G.energy <= 0) endGame('sleep');
+  else if (G.passOut) endGame('vibe');
+}
+
+// ---------- scene precompute ----------
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const R = mulberry(24);
+const STARS = Array.from({ length: 95 }, () => ({ x: R() * W, y: R() * 250, r: R() * 1.3 + 0.3, p: R() * 6.28, s: R() * 2 + 0.6 }));
+const TREES = [];
+for (let x = -10; x < W + 20; x += 12 + R() * 14) TREES.push({ x, h: 18 + R() * 30, w: 10 + R() * 10 });
+const REEDS = Array.from({ length: 22 }, (_, i) => ({ x: 360 + i * 7 + R() * 5, h: 30 + R() * 40, p: R() * 6 }));
+const REEDS2 = Array.from({ length: 16 }, (_, i) => ({ x: W - 20 - i * 8 - R() * 4, h: 40 + R() * 50, p: R() * 6 }));
+const moonCv = document.createElement('canvas');
+moonCv.width = 160; moonCv.height = 160;
+(() => {
+  const m = moonCv.getContext('2d');
+  m.fillStyle = '#fff3cf'; m.beginPath(); m.arc(80, 80, 60, 0, 7); m.fill();
+  m.globalCompositeOperation = 'destination-out';
+  m.beginPath(); m.arc(104, 66, 54, 0, 7); m.fill();
+  m.globalCompositeOperation = 'source-over';
+  // котик обнимает луну (как на её гобелене)
+  m.fillStyle = '#1b1433';
+  m.beginPath(); m.ellipse(62, 96, 13, 10, -0.5, 0, 7); m.fill();
+  m.beginPath(); m.arc(56, 82, 8, 0, 7); m.fill();
+  m.beginPath(); m.moveTo(50, 78); m.lineTo(51, 69); m.lineTo(56, 75); m.fill();
+  m.beginPath(); m.moveTo(58, 75); m.lineTo(63, 69); m.lineTo(64, 78); m.fill();
+  m.strokeStyle = '#1b1433'; m.lineWidth = 3; m.lineCap = 'round';
+  m.beginPath(); m.moveTo(72, 102); m.quadraticCurveTo(86, 110, 84, 94); m.stroke();
+  m.fillStyle = '#fff3cf'; m.font = 'bold 9px sans-serif'; m.fillText('★', 52, 83);
+})();
+
+// ---------- drawing ----------
+function roundRect(x, y, w, h, r) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+function star5(cx, cy, r, color) {
+  ctx.fillStyle = color; ctx.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
+  ctx.closePath(); ctx.fill();
+}
+function hudText(s, x, y) {
+  ctx.lineJoin = 'round'; ctx.lineWidth = 3.5; ctx.strokeStyle = 'rgba(15,12,29,0.92)';
+  ctx.strokeText(s, x, y); ctx.fillStyle = '#f7f0ff'; ctx.fillText(s, x, y);
+}
+function dawnK() { return G ? clamp((G.clock - 29 * 60) / 60, 0, 1) : 0; }
+function mixColor(a, b, k) {
+  const pa = a.match(/\w\w/g).map(h => parseInt(h, 16)), pb = b.match(/\w\w/g).map(h => parseInt(h, 16));
+  return 'rgb(' + pa.map((v, i) => Math.round(lerp(v, pb[i], k))).join(',') + ')';
+}
+function drawSky(t) {
+  const k = dawnK();
+  const g = ctx.createLinearGradient(0, 0, 0, WATER_Y);
+  g.addColorStop(0, mixColor('#0b0920', '#3b3a78', k));
+  g.addColorStop(0.6, mixColor('#221a4a', '#b06a9a', k));
+  g.addColorStop(1, mixColor('#3a2560', '#ffb38a', k));
+  ctx.fillStyle = g; ctx.fillRect(-20, -20, W + 40, WATER_Y + 22);
+  for (const s of STARS) {
+    const a = (0.45 + 0.55 * Math.sin(t * s.s + s.p)) * (1 - k);
+    ctx.globalAlpha = a; ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill();
+  }
+  ctx.globalAlpha = 1 - k * 0.6;
+  ctx.drawImage(moonCv, 640, 78, 110, 110);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = mixColor('#0a0818', '#2a1f3a', k);
+  ctx.beginPath(); ctx.moveTo(-20, WATER_Y);
+  for (const tr of TREES) { ctx.lineTo(tr.x - tr.w / 2, WATER_Y - 6); ctx.lineTo(tr.x, WATER_Y - 6 - tr.h); ctx.lineTo(tr.x + tr.w / 2, WATER_Y - 6); }
+  ctx.lineTo(W + 20, WATER_Y); ctx.closePath(); ctx.fill();
+}
+function drawWater(t) {
+  const k = dawnK();
+  const g = ctx.createLinearGradient(0, WATER_Y, 0, H);
+  g.addColorStop(0, mixColor('#241c55', '#8a5a8e', k));
+  g.addColorStop(1, mixColor('#080717', '#2b2140', k));
+  ctx.fillStyle = g; ctx.fillRect(-20, WATER_Y, W + 40, H - WATER_Y + 20);
+  for (let i = 0; i < 26; i++) {
+    const y = WATER_Y + 6 + i * 9;
+    const w = 26 + Math.sin(t * 1.7 + i) * 10 + i * 1.2;
+    ctx.globalAlpha = 0.28 * (1 - i / 30) * (1 - k * 0.5);
+    ctx.fillStyle = '#ffeebd';
+    ctx.fillRect(695 - w / 2 + Math.sin(t * 2 + i * 1.3) * 6, y, w, 2);
+  }
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(180,170,255,0.12)'; ctx.lineWidth = 1;
+  for (let i = 0; i < 18; i++) {
+    const y = WATER_Y + 14 + ((i * 37 + t * 8) % (H - WATER_Y - 10));
+    const x = (i * 157 + t * (i % 2 ? 12 : -9)) % (W + 100) - 50;
+    ctx.beginPath(); ctx.ellipse(x, y, 30 + (i % 4) * 10, 2, 0, 0, 7); ctx.stroke();
+  }
+}
+function drawReeds(list, t, base) {
+  ctx.strokeStyle = '#141029'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  for (const r of list) {
+    const sw = Math.sin(t * 1.2 + r.p) * 4;
+    ctx.beginPath(); ctx.moveTo(r.x, base); ctx.quadraticCurveTo(r.x + sw * 0.5, base - r.h * 0.6, r.x + sw, base - r.h); ctx.stroke();
+    if (r.h > 55) { ctx.fillStyle = '#2a1b1a'; ctx.beginPath(); ctx.ellipse(r.x + sw, base - r.h + 6, 3, 9, 0, 0, 7); ctx.fill(); }
+  }
+}
+function drawPier(t) {
+  ctx.fillStyle = '#3b2a26';
+  for (const x of [40, 140, 240, 330]) ctx.fillRect(x - 6, PIER_Y + 10, 12, 110);
+  ctx.fillStyle = 'rgba(59,42,38,0.35)';
+  for (const x of [40, 140, 240, 330]) ctx.fillRect(x - 6 + Math.sin(t * 2 + x) * 2, PIER_Y + 120, 12, 40);
+  ctx.fillStyle = '#6e4d3f'; ctx.fillRect(-20, PIER_Y, 370, 18);
+  ctx.fillStyle = '#58392f'; ctx.fillRect(-20, PIER_Y + 14, 370, 6);
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1;
+  for (let x = 30; x < 350; x += 32) { ctx.beginPath(); ctx.moveTo(x, PIER_Y); ctx.lineTo(x, PIER_Y + 18); ctx.stroke(); }
+  const lx = 22;
+  ctx.fillStyle = '#2a2030'; ctx.fillRect(lx - 2, PIER_Y - 62, 4, 62);
+  const flick = 0.85 + Math.sin(t * 11) * 0.05 + Math.sin(t * 7.3) * 0.05;
+  const lg = ctx.createRadialGradient(lx, PIER_Y - 70, 2, lx, PIER_Y - 70, 110 * flick);
+  lg.addColorStop(0, 'rgba(255,200,120,0.55)'); lg.addColorStop(1, 'rgba(255,200,120,0)');
+  ctx.fillStyle = lg; ctx.fillRect(lx - 120, PIER_Y - 190, 240, 240);
+  ctx.fillStyle = '#ffd38a'; roundRect(lx - 8, PIER_Y - 82, 16, 20, 4); ctx.fill();
+  ctx.strokeStyle = '#2a2030'; ctx.lineWidth = 2; ctx.stroke();
+}
+function drawCooler() {
+  const x = 80, y = PIER_Y;
+  ctx.fillStyle = '#ff8cc6'; roundRect(x, y - 30, 52, 30, 5); ctx.fill();
+  ctx.fillStyle = '#e0569c'; roundRect(x - 2, y - 34, 56, 8, 3); ctx.fill();
+  ctx.fillStyle = '#2a0d1f'; ctx.font = '900 9px ' + BODY; ctx.textAlign = 'center';
+  ctx.fillText(safeMode ? 'МОХИТО' : 'ПИВКО', x + 26, y - 12);
+  const n = G ? Math.min(G.cans, 6) : 5;
+  for (let i = 0; i < n; i++) {
+    const cx = x + 6 + i * 8;
+    ctx.fillStyle = safeMode ? '#ff9fcf' : '#e9b949'; roundRect(cx, y - 46, 7, 12, 2); ctx.fill();
+    ctx.fillStyle = '#d6d6e6'; ctx.fillRect(cx, y - 46, 7, 2);
+  }
+}
+function drawTripod(t) {
+  const x = 318, y = PIER_Y;
+  ctx.strokeStyle = '#1c1830'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x, y - 40); ctx.lineTo(x - 10, y); ctx.moveTo(x, y - 40); ctx.lineTo(x + 8, y); ctx.moveTo(x, y - 40); ctx.lineTo(x + 1, y); ctx.stroke();
+  ctx.fillStyle = '#111'; roundRect(x - 7, y - 60, 14, 22, 3); ctx.fill();
+  const on = G && gameStarted && !G.over && G.state !== 'crash';
+  ctx.fillStyle = on ? (Math.sin(t * 5) > 0 ? '#ff3d63' : '#7a1a2c') : '#333';
+  ctx.beginPath(); ctx.arc(x, y - 54, 2.2, 0, 7); ctx.fill();
+}
+function drawZeus(t) {
+  const x = 165, y = PIER_Y;
+  const barking = G && G.zeus.bark > 0;
+  const happy = G && G.zeus.happy > 0;
+  const hop = barking && !reduceMotion ? Math.abs(Math.sin(t * 18)) * 3 : 0;
+  ctx.save(); ctx.translate(x, y - hop);
+  const wag = Math.sin(t * (happy ? 20 : 6)) * (happy ? 0.12 : 0.04) * (reduceMotion ? 0.3 : 1);
+  ctx.save(); ctx.rotate(wag);
+  ctx.fillStyle = '#e8963f'; ctx.beginPath(); ctx.ellipse(-4, -18, 23, 17, 0, 0, 7); ctx.fill();
+  // свитер с единорогом
+  ctx.fillStyle = '#ff9fcf'; ctx.beginPath(); ctx.ellipse(-2, -20, 18, 14, 0, 0, 7); ctx.fill();
+  ctx.font = '10px ' + EMOJI; ctx.textAlign = 'center'; ctx.fillText('🦄', -4, -16);
+  ctx.restore();
+  ctx.fillStyle = '#fff4ea'; ctx.fillRect(8, -10, 6, 10); ctx.fillRect(-18, -8, 6, 8);
+  ctx.fillStyle = '#e8963f'; ctx.beginPath(); ctx.arc(16, -40, 14, 0, 7); ctx.fill();
+  ctx.fillStyle = '#fff4ea'; ctx.beginPath(); ctx.ellipse(21, -35, 8, 7, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = '#e8963f';
+  ctx.beginPath(); ctx.moveTo(4, -48); ctx.lineTo(6, -68); ctx.lineTo(15, -52); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(17, -53); ctx.lineTo(27, -69); ctx.lineTo(29, -47); ctx.fill();
+  ctx.fillStyle = '#ffb3c8';
+  ctx.beginPath(); ctx.moveTo(7, -51); ctx.lineTo(8, -62); ctx.lineTo(13, -52); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(20, -53); ctx.lineTo(26, -63); ctx.lineTo(27, -49); ctx.fill();
+  ctx.fillStyle = '#1a1020'; ctx.beginPath(); ctx.arc(20, -44, 2.2, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(28, -38, 3, 2.3, 0, 0, 7); ctx.fill();
+  if (barking || happy) { ctx.fillStyle = '#ff6f91'; ctx.beginPath(); ctx.ellipse(25, -30, 3, 4 + (barking ? Math.abs(Math.sin(t * 18)) * 2 : 0), 0, 0, 7); ctx.fill(); }
+  ctx.restore();
+}
+function drawZeusBark() {
+  if (G && G.zeus.bark > 0) bubble(112, PIER_Y - 76, 'ГАВ! ГАВ!', 'тапни, чтобы успокоить Зевса', '#ffcc66');
+}
+function drawLinka(t) {
+  const x = 250, y = PIER_Y;
+  const pose = G ? G.pose : 'idle';
+  const vibe = G ? G.vibe / 100 : 0;
+  const mk = reduceMotion ? 0.25 : 1;
+  let jump = 0, lean = 0;
+  if (pose === 'cheer') jump = Math.abs(Math.sin(t * 9)) * 8 * mk;
+  if (pose === 'dance') { jump = Math.abs(Math.sin(t * 10)) * 10 * mk; lean = Math.sin(t * 10) * 0.12 * mk; }
+  if (pose === 'reel') lean = G.holding ? -0.08 : -0.03;
+  if (pose === 'charge') lean = -0.06 * (G ? G.power : 0);
+  if (pose === 'sleep') lean = -0.05;
+  const breathe = Math.sin(t * 2.2) * 1.2;
+  const sway = Math.sin(t * 1.3) * 0.05 * vibe * (reduceMotion ? 0 : 1);
+  ctx.save();
+  ctx.translate(x, y - jump); ctx.rotate(lean + sway);
+  // волосы сзади
+  const hw = Math.sin(t * 1.6) * 3 * mk;
+  ctx.fillStyle = '#f2dfa3';
+  ctx.beginPath();
+  ctx.moveTo(-10, -156); ctx.quadraticCurveTo(-44, -140, -40, -96);
+  ctx.quadraticCurveTo(-38 + hw, -62, -34 + hw, -48);
+  ctx.quadraticCurveTo(-22 + hw, -40, -12 + hw, -52);
+  ctx.quadraticCurveTo(-4, -46, 6, -58);
+  ctx.quadraticCurveTo(18, -80, 22, -120);
+  ctx.quadraticCurveTo(26, -150, -10, -156); ctx.fill();
+  ctx.strokeStyle = 'rgba(200,170,90,0.55)'; ctx.lineWidth = 1.2;
+  for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(-28 + i * 7, -130); ctx.quadraticCurveTo(-34 + i * 7 + hw, -90, -30 + i * 7 + hw, -56); ctx.stroke(); }
+  // ноги: белые колготки, гетры со звёздами, платформы
+  ctx.fillStyle = '#f3eef8'; ctx.fillRect(-13, -48, 10, 42); ctx.fillRect(3, -48, 10, 42);
+  ctx.fillStyle = '#16121f'; ctx.fillRect(-14, -26, 12, 20); ctx.fillRect(2, -26, 12, 20);
+  star5(-8, -17, 3.4, '#fff'); star5(8, -17, 3.4, '#fff');
+  ctx.fillStyle = '#0c0a12'; roundRect(-17, -8, 17, 9, 3); ctx.fill(); roundRect(1, -8, 17, 9, 3); ctx.fill();
+  // чёрная толстовка
+  ctx.fillStyle = '#1a1624';
+  ctx.beginPath(); ctx.moveTo(-19, -100 + breathe * 0.3); ctx.lineTo(19, -100 + breathe * 0.3); ctx.lineTo(25, -44); ctx.lineTo(-25, -44); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#2a2436'; ctx.fillRect(-25, -50, 50, 6);
+  // бантик
+  ctx.fillStyle = '#ff8cc6';
+  ctx.beginPath(); ctx.moveTo(0, -96); ctx.lineTo(-9, -101); ctx.lineTo(-9, -91); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0, -96); ctx.lineTo(9, -101); ctx.lineTo(9, -91); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, -96, 2.5, 0, 7); ctx.fill();
+  // руки
+  ctx.strokeStyle = '#1a1624'; ctx.lineWidth = 9; ctx.lineCap = 'round';
+  let hand = { x: 28, y: -70 }, hand2 = { x: 20, y: -64 };
+  if (pose === 'cheer' || pose === 'dance') { hand = { x: 26, y: -128 + Math.sin(t * 10) * 6 * mk }; hand2 = { x: -22, y: -126 - Math.sin(t * 10) * 6 * mk }; }
+  if (pose === 'drink') { hand = { x: 20, y: -112 }; }
+  if (pose === 'charge') { hand = { x: 16, y: -90 }; hand2 = { x: 8, y: -84 }; }
+  if (pose === 'sleep') { hand = { x: 22, y: -56 }; hand2 = { x: -16, y: -56 }; }
+  ctx.beginPath(); ctx.moveTo(8, -92); ctx.lineTo(hand.x, hand.y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-8, -92); ctx.lineTo(hand2.x, hand2.y); ctx.stroke();
+  ctx.fillStyle = '#ffe2d6';
+  ctx.beginPath(); ctx.arc(hand.x, hand.y, 5, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(hand2.x, hand2.y, 5, 0, 7); ctx.fill();
+  if (pose === 'drink') {
+    ctx.fillStyle = safeMode ? '#ff9fcf' : '#e9b949'; roundRect(hand.x - 4, hand.y - 16, 9, 16, 2); ctx.fill();
+    ctx.fillStyle = '#d6d6e6'; ctx.fillRect(hand.x - 4, hand.y - 16, 9, 2);
+  }
+  // голова
+  const hx = 4, hy = -128 + breathe * 0.4;
+  ctx.fillStyle = '#ffe6da'; ctx.beginPath(); ctx.arc(hx, hy, 29, 0, 7); ctx.fill();
+  const closed = pose === 'sleep' || (G && G.energy < 12 && Math.sin(t * 3) > 0.3);
+  const eye = (ex, ey, s) => {
+    if (closed) { ctx.strokeStyle = '#1a1020'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(ex, ey, 5 * s, 0.2, Math.PI - 0.2); ctx.stroke(); return; }
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(ex, ey, 5 * s, 6.5, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#6d4f86'; ctx.beginPath(); ctx.ellipse(ex + 0.8, ey + 0.8, 3.6 * s, 5, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#1a1020'; ctx.beginPath(); ctx.arc(ex + 1, ey + 1, 1.8 * s, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ex - 0.8, ey - 2, 1.4, 0, 7); ctx.fill();
+    // стрелки
+    ctx.strokeStyle = '#120c18'; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.moveTo(ex - 5 * s, ey - 4); ctx.quadraticCurveTo(ex, ey - 8, ex + 5.5 * s, ey - 5); ctx.lineTo(ex + 8.5 * s, ey - 8); ctx.stroke();
+  };
+  eye(hx + 3, hy + 2, 0.85); eye(hx + 19, hy + 2, 0.7);
+  ctx.fillStyle = 'rgba(255,120,160,0.35)';
+  ctx.beginPath(); ctx.ellipse(hx + 1, hy + 12, 5, 3, 0, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(hx + 21, hy + 12, 4, 2.5, 0, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#9b2c4c'; ctx.lineWidth = 2; ctx.fillStyle = '#9b2c4c';
+  if (pose === 'cheer' || pose === 'dance' || (G && G.state === 'bite')) { ctx.beginPath(); ctx.ellipse(hx + 12, hy + 16, 3.4, 4, 0, 0, 7); ctx.fill(); }
+  else if (G && G.bubble && /пипяо|лох|бб|капец|рано|неуклюж/.test(G.bubble.text)) { ctx.beginPath(); ctx.moveTo(hx + 8, hy + 18); ctx.quadraticCurveTo(hx + 12, hy + 14, hx + 16, hy + 18); ctx.stroke(); }
+  else { ctx.beginPath(); ctx.moveTo(hx + 8, hy + 15); ctx.quadraticCurveTo(hx + 10, hy + 18, hx + 12, hy + 15); ctx.quadraticCurveTo(hx + 14, hy + 18, hx + 16, hy + 15); ctx.stroke(); }
+  // звёздочка на лбу
+  star5(hx + 11, hy - 12, 3.6, '#120c18');
+  // чёлка и пряди
+  ctx.fillStyle = '#f6e6b0';
+  ctx.beginPath(); ctx.moveTo(hx - 27, hy - 10); ctx.quadraticCurveTo(hx - 22, hy - 30, hx - 2, hy - 26);
+  ctx.quadraticCurveTo(hx - 8, hy - 14, hx - 16, hy - 4); ctx.quadraticCurveTo(hx - 22, hy + 10, hx - 26, hy + 30); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(hx + 26, hy - 18); ctx.quadraticCurveTo(hx + 32, hy + 10, hx + 30, hy + 42); ctx.quadraticCurveTo(hx + 26, hy + 20, hx + 22, hy + 4); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(hx - 4, hy - 26); ctx.quadraticCurveTo(hx + 20, hy - 30, hx + 27, hy - 16); ctx.quadraticCurveTo(hx + 22, hy - 18, hx + 18, hy - 20); ctx.quadraticCurveTo(hx + 20, hy - 14, hx + 24, hy - 6); ctx.quadraticCurveTo(hx + 10, hy - 14, hx + 6, hy - 22); ctx.closePath(); ctx.fill();
+  // шапка с кошачьими ушками
+  ctx.fillStyle = '#16121f';
+  ctx.beginPath(); ctx.arc(hx, hy - 6, 30, Math.PI * 1.05, Math.PI * 1.95); ctx.closePath(); ctx.fill();
+  ctx.fillRect(hx - 29, hy - 22, 58, 7);
+  ctx.beginPath(); ctx.moveTo(hx - 22, hy - 28); ctx.lineTo(hx - 20, hy - 50); ctx.lineTo(hx - 6, hy - 34); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(hx + 8, hy - 35); ctx.lineTo(hx + 22, hy - 52); ctx.lineTo(hx + 24, hy - 28); ctx.fill();
+  ctx.fillStyle = '#ff8cc6';
+  ctx.beginPath(); ctx.moveTo(hx - 18, hy - 31); ctx.lineTo(hx - 18, hy - 43); ctx.lineTo(hx - 10, hy - 34); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(hx + 12, hy - 35); ctx.lineTo(hx + 20, hy - 45); ctx.lineTo(hx + 21, hy - 32); ctx.fill();
+  ctx.restore();
+  if (pose === 'sleep') {
+    ctx.fillStyle = '#d6ccff'; ctx.font = '900 16px ' + BODY; ctx.textAlign = 'left';
+    ctx.fillText('z', x + 30, y - 170 - (t * 10 % 20)); ctx.font = '900 22px ' + BODY; ctx.fillText('Z', x + 42, y - 188 - (t * 10 % 20));
+  }
+}
+function drawRod(t) {
+  if (!G) return;
+  const pose = G.pose;
+  if (pose === 'cheer' || pose === 'dance' || pose === 'drink' || pose === 'sleep') {
+    // удочка прислонена к перилам
+    ctx.strokeStyle = '#2a1d19'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(300, PIER_Y); ctx.lineTo(372, PIER_Y - 150); ctx.stroke();
+    if (G.state === 'casting' || G.state === 'waiting' || G.state === 'bite' || G.state === 'crash') drawLine({ x: 372, y: PIER_Y - 150 }, t);
+    return;
+  }
+  const base = { x: 250 + 28, y: PIER_Y - 70 };
+  const tip = rodTip();
+  let bend = 0;
+  if (G.state === 'reeling') bend = G.holding ? 26 : 12;
+  if (G.state === 'bite') bend = 14;
+  ctx.strokeStyle = '#2a1d19'; ctx.lineWidth = 3.2; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(base.x - 12, base.y + 10);
+  ctx.quadraticCurveTo((base.x + tip.x) / 2 + bend * 0.3, (base.y + tip.y) / 2 - 10 + bend, tip.x, tip.y + bend * 0.8); ctx.stroke();
+  ctx.fillStyle = '#ff8cc6'; ctx.beginPath(); ctx.arc(base.x - 2, base.y + 4, 4, 0, 7); ctx.fill();
+  if (G.state !== 'idle' && G.state !== 'charging' && G.state !== 'over') drawLine({ x: tip.x, y: tip.y + bend * 0.8 }, t);
+}
+function drawLine(tip, t) {
+  const b = G.bob;
+  let bx = b.x, by = b.y;
+  if (G.state === 'reeling') { bx = lerp(b.tx, 380, G.reel.progress * 0.5); by = b.ty + 6; }
+  const sag = G.state === 'reeling' ? 4 : 30;
+  ctx.strokeStyle = 'rgba(235,235,255,0.55)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(tip.x, tip.y); ctx.quadraticCurveTo((tip.x + bx) / 2, Math.max(tip.y, by) - 10 + sag, bx, by); ctx.stroke();
+  if (G.state === 'casting' || G.state === 'waiting' || G.state === 'bite' || G.state === 'crash') drawBobber(bx, by, t);
+  if (G.state === 'reeling') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.ellipse(bx, by + 2, 8 + ((t * 30 + i * 8) % 24), 3 + ((t * 10 + i * 3) % 8) * 0.3, 0, 0, 7); ctx.stroke(); }
+  }
+}
+function drawBobber(x, y, t) {
+  const inWater = G.state !== 'casting';
+  let dy = inWater ? Math.sin(t * 2.6) * 1.5 : 0;
+  if (G.state === 'waiting' && G.bob.nib > 0) dy += Math.sin(G.bob.nib * 40) * 3;
+  if (G.state === 'bite') dy += 10;
+  const s = 1 - G.castPower * 0.35;
+  ctx.save(); ctx.translate(x, y + dy); ctx.scale(s, s);
+  if (inWater) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(0, 4 - dy / s, 12 + Math.sin(t * 3) * 2, 3, 0, 0, 7); ctx.stroke();
+  }
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 0, 6, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#ff3d63'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI); ctx.fill();
+  ctx.fillStyle = '#ff8cc6'; ctx.fillRect(-1, -12, 2, 7);
+  ctx.restore();
+  if (G.state === 'bite') {
+    ctx.fillStyle = '#ff8cc6'; ctx.font = '900 34px ' + DISPLAY; ctx.textAlign = 'center';
+    const k = G.biteT / G.biteMax;
+    ctx.save();
+    ctx.globalAlpha = reduceMotion ? 1 : 0.7 + 0.3 * Math.sin(t * 12);
+    ctx.fillText('!', x, y - 26);
+    ctx.restore();
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(x - 22, y - 16, 44, 4);
+    ctx.fillStyle = '#ff8cc6'; ctx.fillRect(x - 22, y - 16, 44 * k, 4);
+  }
+  if (G.state === 'waiting' && G.bob.nib > 0) {
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '900 16px ' + BODY; ctx.textAlign = 'center'; ctx.fillText('?', x + 12, y - 12);
+  }
+}
+function wrapText(text, maxW) {
+  const words = text.split(' '); const lines = []; let cur = '';
+  for (const w of words) { const tst = cur ? cur + ' ' + w : w; if (ctx.measureText(tst).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tst; }
+  if (cur) lines.push(cur); return lines;
+}
+function bubble(x, y, text, sub, color = '#fff', minX = 8) {
+  ctx.font = '800 15px ' + BODY;
+  const lines = wrapText(text, 230);
+  let w = Math.max(...lines.map(l => ctx.measureText(l).width));
+  if (sub) { ctx.font = '700 13px ' + BODY; w = Math.max(w, ctx.measureText(sub).width); }
+  w += 22;
+  const h = lines.length * 19 + (sub ? 18 : 0) + 14;
+  const bx = clamp(x - w / 2, minX, W - w - 8), by = y - h;
+  ctx.fillStyle = color; roundRect(bx, by, w, h, 12); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(clamp(x - 8, bx + 10, bx + w - 20), by + h - 1); ctx.lineTo(clamp(x, bx + 16, bx + w - 12), by + h + 10); ctx.lineTo(clamp(x + 8, bx + 22, bx + w - 4), by + h - 1); ctx.fill();
+  ctx.font = '800 15px ' + BODY; ctx.fillStyle = '#1a1024'; ctx.textAlign = 'left';
+  lines.forEach((l, i) => ctx.fillText(l, bx + 11, by + 22 + i * 19));
+  if (sub) { ctx.font = '700 13px ' + BODY; ctx.fillStyle = '#4a3a66'; ctx.fillText(sub, bx + 11, by + h - 9); }
+}
+function bar(x, y, w, h, k, color, label, valText) {
+  ctx.fillStyle = 'rgba(15,12,29,0.75)'; roundRect(x, y, w, h, h / 2); ctx.fill();
+  ctx.fillStyle = color; roundRect(x + 2, y + 2, Math.max(0, (w - 4) * clamp(k, 0, 1)), h - 4, (h - 4) / 2); ctx.fill();
+  ctx.font = '800 12px ' + BODY;
+  if (label) { ctx.textAlign = 'left'; hudText(label, x + 8, y + h - 5); }
+  if (valText) { ctx.textAlign = 'right'; hudText(valText, x + w - 8, y + h - 5); }
+}
+function clockText() {
+  const m = Math.floor(G.clock) % (24 * 60);
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+function drawHUD() {
+  if (!G || !gameStarted) return;
+  const off = G.state === 'crash' || G.over;
+  ctx.fillStyle = off ? '#555' : '#ff3d63'; roundRect(14, 12, 58, 24, 8); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = '900 12px ' + BODY; ctx.textAlign = 'center'; ctx.fillText(G.over ? 'OFF' : '● LIVE', 43, 29);
+  ctx.fillStyle = 'rgba(15,12,29,0.75)'; roundRect(78, 12, 132, 24, 8); ctx.fill();
+  ctx.fillStyle = '#f7f0ff'; ctx.font = '800 13px ' + BODY; ctx.textAlign = 'left';
+  ctx.fillText('👁 ' + Math.round(G.viewers), 88, 29);
+  ctx.textAlign = 'right'; ctx.fillText(clockText(), 202, 29);
+  const ek = G.energy / 100;
+  bar(14, 44, 196, 18, ek, ek < 0.25 ? '#ff5d7a' : '#ffcc66', '☕ бодрость', Math.max(0, Math.round(G.energy)) + '%');
+  bar(14, 66, 196, 18, G.vibe / 100, G.vibe >= 78 ? '#ff5d7a' : (safeMode ? '#ff8cc6' : '#e9b949'), L().drinkIcon + ' ' + L().vibeName, Math.round(G.vibe) + '%');
+  if (G.x2T > 0) { ctx.font = '900 12px ' + BODY; ctx.textAlign = 'left'; hudText('x2 подписчики: ' + Math.ceil(G.x2T) + ' с', 16, 102); }
+  const gx = 330, gw = 300;
+  ctx.font = '800 12px ' + BODY; ctx.textAlign = 'center';
+  hudText(G.goalHit ? 'ЗАЛЕТЕЛО! добили ' + GOAL : 'добейте ' + GOAL + ' подписчиков', gx + gw / 2, 24);
+  bar(gx, 30, gw, 16, G.subs / GOAL, '#ff8cc6');
+  ctx.font = '900 12px ' + BODY; ctx.textAlign = 'center'; hudText(G.subs + ' / ' + GOAL, gx + gw / 2, 42);
+  if (G.task) {
+    const tx = 660, tw = 286;
+    ctx.fillStyle = 'rgba(15,12,29,0.85)'; roundRect(tx, 12, tw, 56, 10); ctx.fill();
+    ctx.strokeStyle = '#ff8cc6'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#ff8cc6'; ctx.font = '900 12px ' + BODY; ctx.textAlign = 'left'; ctx.fillText('ЗАДАНИЕ ОТ ЧАТА · ' + Math.ceil(G.task.time) + ' с', tx + 10, 29);
+    ctx.fillStyle = '#f7f0ff'; ctx.font = '800 14px ' + BODY;
+    ctx.fillText(G.task.text + (G.task.need > 1 ? ' (' + G.task.have + '/' + G.task.need + ')' : ''), tx + 10, 49, tw - 20);
+    ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(tx + 10, 58, tw - 20, 3);
+    ctx.fillStyle = '#ff8cc6'; ctx.fillRect(tx + 10, 58, (tw - 20) * (G.task.time / G.task.max), 3);
+  }
+}
+function drawReel() {
+  const r = G.reel; if (!r) return;
+  const x = 866, y0 = 110, h = 300, w = 44;
+  ctx.fillStyle = 'rgba(15,12,29,0.85)'; roundRect(x - 10, y0 - 14, w + 44, h + 28, 14); ctx.fill();
+  ctx.fillStyle = '#1c2b52'; roundRect(x, y0, w, h, 10); ctx.fill();
+  const wob = Math.sin(G.t * 3.1) * (G.vibe / 100) * 0.07;
+  const zBot = y0 + h * (1 - (r.zone + wob)), zT = zBot - h * r.zoneH;
+  const top = Math.max(y0, zT), bot = Math.min(y0 + h, zBot);
+  ctx.fillStyle = r.inside ? 'rgba(255,140,198,0.75)' : 'rgba(255,140,198,0.4)';
+  roundRect(x + 3, top, w - 6, Math.max(0, bot - top), 8); ctx.fill();
+  const fy = y0 + h * (1 - r.fish);
+  ctx.font = '26px ' + EMOJI; ctx.textAlign = 'center'; ctx.fillText(itemEmoji(G.item), x + w / 2, fy + 9);
+  ctx.fillStyle = '#2a2240'; roundRect(x + w + 10, y0, 12, h, 6); ctx.fill();
+  const pk = clamp(r.progress, 0, 1);
+  ctx.fillStyle = pk > 0.66 ? '#7be3a4' : pk > 0.33 ? '#ffcc66' : '#ff5d7a';
+  roundRect(x + w + 10, y0 + h * (1 - pk), 12, h * pk, 6); ctx.fill();
+  ctx.font = '800 14px ' + BODY; ctx.textAlign = 'center'; hudText('держи', x + w / 2 + 10, y0 + h + 30);
+}
+function drawReveal() {
+  const rv = G.reveal; if (!rv) return;
+  const it = rv.item, tier = TIERS[it.tier];
+  const k = clamp(rv.t / 0.25, 0, 1);
+  const cw = 400, ch = 268, cx = 540, cy = 108;
+  ctx.save(); ctx.globalAlpha = k;
+  ctx.translate(cx + cw / 2, cy + ch / 2); ctx.scale(0.85 + 0.15 * k, 0.85 + 0.15 * k); ctx.translate(-(cx + cw / 2), -(cy + ch / 2));
+  ctx.fillStyle = 'rgba(20,15,40,0.95)'; roundRect(cx, cy, cw, ch, 18); ctx.fill();
+  ctx.strokeStyle = tier.color; ctx.lineWidth = 3; ctx.stroke();
+  if (it.tier >= 3) {
+    for (let i = 0; i < 12; i++) { const a = i / 12 * 6.28 + (reduceMotion ? 0 : G.t); ctx.strokeStyle = tier.color; ctx.globalAlpha = 0.25 * k; ctx.beginPath(); ctx.moveTo(cx + cw / 2, cy + 78); ctx.lineTo(cx + cw / 2 + Math.cos(a) * 90, cy + 78 + Math.sin(a) * 60); ctx.stroke(); }
+    ctx.globalAlpha = k;
+  }
+  ctx.font = '64px ' + EMOJI; ctx.textAlign = 'center';
+  if (it.gold) { ctx.shadowColor = '#ffcc66'; ctx.shadowBlur = 24; }
+  ctx.fillText(itemEmoji(it), cx + cw / 2, cy + 100);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#f7f0ff'; ctx.font = '800 20px ' + DISPLAY; ctx.fillText(itemName(it), cx + cw / 2, cy + 138, cw - 32);
+  ctx.fillStyle = tier.color; ctx.font = '900 13px ' + BODY; ctx.fillText(tier.name.toUpperCase() + (it.kind === 'junk' ? ' МУСОРКА' : ' РЫБА'), cx + cw / 2, cy + 160);
+  ctx.fillStyle = '#ff8cc6'; ctx.font = '900 18px ' + BODY; ctx.fillText('+' + rv.gain + ' ' + plural(rv.gain, SUBS), cx + cw / 2, cy + 186);
+  let qy = cy + 214;
+  if (rv.bonus) { ctx.fillStyle = '#ffcc66'; ctx.font = '800 14px ' + BODY; ctx.fillText(rv.bonus, cx + cw / 2, cy + 206, cw - 32); qy = cy + 232; }
+  ctx.fillStyle = '#d9cffa'; ctx.font = '800 15px ' + BODY;
+  wrapText('«' + rv.quote + '»', cw - 40).slice(0, 2).forEach((l, i) => ctx.fillText(l, cx + cw / 2, qy + i * 18));
+  ctx.restore();
+}
+function drawCrash() {
+  const c = G.crash; if (!c) return;
+  ctx.fillStyle = 'rgba(10,8,20,0.72)'; ctx.fillRect(0, 0, W, H);
+  const px = W / 2 - 60, py = 150;
+  ctx.fillStyle = '#111'; roundRect(px, py, 120, 200, 16); ctx.fill();
+  ctx.fillStyle = '#261d3d'; roundRect(px + 8, py + 14, 104, 172, 8); ctx.fill();
+  ctx.font = '900 30px ' + EMOJI; ctx.textAlign = 'center'; ctx.fillText('📵', W / 2, py + 80);
+  ctx.fillStyle = '#f7f0ff'; ctx.font = '900 14px ' + BODY; ctx.fillText('заряд ' + Math.max(1, Math.round(c.t / c.max * 12)) + '%', W / 2, py + 110);
+  ctx.fillStyle = '#444'; roundRect(px + 20, py + 124, 80, 12, 4); ctx.fill();
+  ctx.fillStyle = c.t / c.max > 0.35 ? '#ffcc66' : '#ff5d7a'; roundRect(px + 20, py + 124, 80 * (c.t / c.max), 12, 4); ctx.fill();
+  ctx.fillStyle = '#ff8cc6'; ctx.font = '800 30px ' + DISPLAY; ctx.fillText('СТРИМ СЛЕТЕЛ!', W / 2, 110);
+  ctx.fillStyle = '#f7f0ff'; ctx.font = '900 20px ' + BODY;
+  ctx.fillText('тапай, чтобы перезапустить: ' + (3 - c.mash), W / 2, 400);
+}
+let hintShown = '';
+function drawHint() {
+  if (!G || !gameStarted || G.over) return;
+  const hints = {
+    idle: 'зажми и отпусти — заброс',
+    charging: 'отпускай!',
+    casting: '',
+    waiting: G.zeus.bark > 0 ? 'тапни — успокой Зевса' : 'жди поклёвку… не дёргай раньше времени',
+    bite: 'ЖМИ!',
+    reeling: 'держи — зона вверх, отпусти — вниз. Лови рыбу в зону',
+    reveal: 'тапни, чтобы продолжить',
+    crash: 'тапай, чтобы перезапустить стрим'
+  };
+  const h = hints[G.state] || '';
+  const line = (G.task ? 'Задание: ' + G.task.text + ' · ' + Math.ceil(G.task.time) + ' с — ' : '') + h;
+  if (line !== hintShown) { hintShown = line; $('hintLine').textContent = line; }
+  if (!h || G.state === 'crash' || cv.clientWidth < 620) return;
+  ctx.font = '800 16px ' + BODY; ctx.textAlign = 'center';
+  const w = ctx.measureText(h).width + 28;
+  ctx.fillStyle = 'rgba(15,12,29,0.78)'; roundRect(W / 2 - w / 2 + 110, H - 40, w, 28, 14); ctx.fill();
+  ctx.fillStyle = G.state === 'bite' ? '#ff8cc6' : '#f7f0ff'; ctx.fillText(h, W / 2 + 110, H - 20);
+}
+function drawCharge() {
+  if (G.state !== 'charging') return;
+  const x = 300, y = 190, w = 16, h = 110;
+  ctx.fillStyle = 'rgba(15,12,29,0.8)'; roundRect(x - 4, y - 4, w + 8, h + 8, 8); ctx.fill();
+  const g = ctx.createLinearGradient(0, y + h, 0, y); g.addColorStop(0, '#7be3a4'); g.addColorStop(0.6, '#ffcc66'); g.addColorStop(1, '#ff5d7a');
+  ctx.fillStyle = g; roundRect(x, y + h * (1 - G.power), w, h * G.power, 6); ctx.fill();
+  ctx.font = '900 13px ' + BODY; ctx.textAlign = 'center'; hudText(Math.round(G.power * 100) + '%', x + w / 2, y - 10);
+}
+
+function render(t) {
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const v = G && gameStarted ? G.vibe / 100 : 0;
+  const swayAmt = reduceMotion ? 0 : v;
+  ctx.save();
+  if (swayAmt > 0.05) {
+    ctx.translate(W / 2, H / 2); ctx.rotate(Math.sin(t * 0.9) * 0.012 * swayAmt);
+    const z = 1 + 0.025 * swayAmt; ctx.scale(z, z); ctx.translate(-W / 2, -H / 2);
+  }
+  drawSky(t); drawWater(t); drawReeds(REEDS2, t, H); drawPier(t); drawCooler(); drawTripod(t);
+  drawZeus(t); drawLinka(t); drawRod(t); drawReeds(REEDS, t, H + 10);
+  if (swayAmt > 0.5) {
+    // «двоится в глазах»: полупрозрачная копия персонажей со сдвигом
+    ctx.save(); ctx.globalAlpha = 0.16 * (swayAmt - 0.5) * 2;
+    ctx.translate(Math.sin(t * 1.7) * 5, Math.cos(t * 1.3) * 2);
+    ctx.drawImage(moonCv, 640, 78, 110, 110); drawCooler(); drawZeus(t); drawLinka(t);
+    ctx.restore();
+  }
+  ctx.restore();
+  if (!G) return;
+  drawZeusBark();
+  if (G.bubble && gameStarted) bubble(290, 150, G.bubble.text, null, '#fff', 218);
+  drawCharge(); drawHUD();
+  if (G.state === 'reeling') drawReel();
+  if (G.state === 'reveal') drawReveal();
+  if (G.state === 'crash') drawCrash();
+  drawHint();
+}
+
+// ---------- loop ----------
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  update(dt);
+  render(now / 1000);
+  requestAnimationFrame(frame);
+}
+newGame();
+updateButtons(); showBest();
+if (muted) { muted = false; toggleMute(); }
+let looping = false;
+const startLoop = () => { if (looping) return; looping = true; last = performance.now(); requestAnimationFrame(frame); };
+if (document.fonts && document.fonts.load) {
+  const CYR = 'Линка ЩУКА ёЁ 0123';
+  Promise.all([document.fonts.load('800 15px Nunito', CYR), document.fonts.load('900 15px Nunito', CYR), document.fonts.load('800 20px Unbounded', CYR)]).catch(() => {}).finally(startLoop);
+  setTimeout(startLoop, 1500);
+} else startLoop();
+})();
+</script>
+</body>
+</html>
