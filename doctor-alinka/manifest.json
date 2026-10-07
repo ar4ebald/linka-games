@@ -1,0 +1,356 @@
+{
+ "version": 1,
+ "keyart": "assets/keyart.jpg",
+ "patients": [
+  {
+   "id": "p1",
+   "title": "Пациент №1",
+   "base": "assets/p1/base.jpg",
+   "size": [
+    1792,
+    1008
+   ],
+   "teeth": "assets/p1/teeth.json",
+   "mouth": [
+    [
+     849,
+     162
+    ],
+    [
+     665,
+     212
+    ],
+    [
+     560,
+     318
+    ],
+    [
+     492,
+     425
+    ],
+    [
+     449,
+     542
+    ],
+    [
+     437,
+     652
+    ],
+    [
+     482,
+     788
+    ],
+    [
+     542,
+     884
+    ],
+    [
+     689,
+     970
+    ],
+    [
+     935,
+     990
+    ],
+    [
+     1182,
+     970
+    ],
+    [
+     1307,
+     884
+    ],
+    [
+     1354,
+     788
+    ],
+    [
+     1348,
+     615
+    ],
+    [
+     1323,
+     462
+    ],
+    [
+     1274,
+     318
+    ],
+    [
+     1169,
+     212
+    ],
+    [
+     999,
+     162
+    ]
+   ],
+   "puddle": {
+    "c": [
+     929,
+     689
+    ],
+    "r": [
+     246,
+     89
+    ]
+   },
+   "saliva": "assets/p1/saliva.webp",
+   "problems": [
+    {
+     "type": "tartar",
+     "layer": "assets/p1/tartar.webp"
+    },
+    {
+     "type": "plaque",
+     "layer": "assets/p1/plaque.webp",
+     "foam": "assets/p1/foam.webp"
+    },
+    {
+     "type": "food",
+     "pos": [
+      935,
+      389
+     ],
+     "sprite": "assets/p1/food.png",
+     "size": [
+      270,
+      230
+     ],
+     "rot": 0
+    },
+    {
+     "type": "cavity",
+     "tooth": "U3",
+     "pos": [
+      666,
+      414
+     ],
+     "r": 42,
+     "fillR": 26,
+     "layer": "assets/p1/cavity1.webp",
+     "drilled": "assets/p1/drilled1.webp"
+    },
+    {
+     "type": "cavity",
+     "tooth": "U10",
+     "pos": [
+      1186,
+      412
+     ],
+     "r": 39,
+     "fillR": 25,
+     "layer": "assets/p1/cavity2.webp",
+     "drilled": "assets/p1/drilled2.webp"
+    },
+    {
+     "type": "dead",
+     "tooth": "U6",
+     "c": [
+      866,
+      252
+     ],
+     "layer": "assets/p1/dead.webp",
+     "poly": [
+      [
+       902,
+       201
+      ],
+      [
+       887,
+       191
+      ],
+      [
+       860,
+       190
+      ],
+      [
+       842,
+       197
+      ],
+      [
+       823,
+       210
+      ],
+      [
+       820,
+       222
+      ],
+      [
+       815,
+       228
+      ],
+      [
+       805,
+       265
+      ],
+      [
+       806,
+       298
+      ],
+      [
+       812,
+       305
+      ],
+      [
+       826,
+       308
+      ],
+      [
+       918,
+       300
+      ],
+      [
+       929,
+       293
+      ],
+      [
+       928,
+       246
+      ],
+      [
+       924,
+       241
+      ],
+      [
+       923,
+       224
+      ]
+     ],
+     "socket": "assets/p1/socket.webp"
+    }
+   ],
+   "face": {
+    "calm": "assets/p1/face_calm.jpg",
+    "worried": "assets/p1/face_worried.jpg",
+    "pain": "assets/p1/face_pain.jpg",
+    "cry": "assets/p1/face_cry.jpg"
+   }
+  }
+ ],
+ "tools": [
+  {
+   "id": "syringe",
+   "img": "assets/tools/syringe.png",
+   "hotspot": [
+    0.5,
+    0.0
+   ],
+   "scale": 0.3412
+  },
+  {
+   "id": "scaler",
+   "img": "assets/tools/scaler.png",
+   "hotspot": [
+    0.32,
+    0.01
+   ],
+   "scale": 0.3412
+  },
+  {
+   "id": "brush",
+   "img": "assets/tools/brush.png",
+   "hotspot": [
+    0.5,
+    0.06
+   ],
+   "scale": 0.3412
+  },
+  {
+   "id": "water",
+   "img": "assets/tools/water.png",
+   "hotspot": [
+    0.5,
+    0.0
+   ],
+   "scale": 0.3412
+  },
+  {
+   "id": "suction",
+   "img": "assets/tools/suction.png",
+   "hotspot": [
+    0.64,
+    0.02
+   ],
+   "scale": 0.3656
+  },
+  {
+   "id": "tweezers",
+   "img": "assets/tools/tweezers.png",
+   "hotspot": [
+    0.3,
+    0.01
+   ],
+   "scale": 0.3412
+  },
+  {
+   "id": "drill",
+   "img": "assets/tools/drill.png",
+   "hotspot": [
+    0.36,
+    0.01
+   ],
+   "scale": 0.3656
+  },
+  {
+   "id": "filling",
+   "img": "assets/tools/filling.png",
+   "hotspot": [
+    0.3,
+    0.01
+   ],
+   "scale": 0.3656
+  },
+  {
+   "id": "lamp",
+   "img": "assets/tools/lamp.png",
+   "hotspot": [
+    0.5,
+    0.02
+   ],
+   "scale": 0.3656
+  },
+  {
+   "id": "forceps",
+   "img": "assets/tools/forceps.png",
+   "hotspot": [
+    0.5,
+    0.0
+   ],
+   "scale": 0.3412
+  },
+  {
+   "id": "implant",
+   "img": "assets/tools/implant.png",
+   "hotspot": [
+    0.5,
+    0.5
+   ],
+   "scale": 0.2437
+  }
+ ],
+ "fx": {
+  "fly": "assets/fx/fly.png",
+  "socket": "assets/p1/socket.webp"
+ },
+ "alinka": {
+  "poster": "assets/alinka/poster.jpg",
+  "clips": {
+   "hello": "assets/alinka/hello.mp4",
+   "idle": "assets/alinka/idle.mp4",
+   "fail": "assets/alinka/fail.mp4",
+   "laugh": "assets/alinka/laugh.mp4",
+   "win": "assets/alinka/win.mp4",
+   "pain": "assets/alinka/pain.mp4",
+   "fly": "assets/alinka/fly.mp4"
+  },
+  "speech": {
+   "hello": "Ребзи, всем хеллоу! Запускаю приём!",
+   "fail": "Пипяо... получается я лох",
+   "laugh": "Ахахах, извиняюсь, но ору!",
+   "win": "УРА ПОБЕДА! Ребзи, вы лучшие!",
+   "pain": "Обожаю эту боль... нет",
+   "fly": "Кто сглазил? Признавайтесь!"
+  }
+ }
+}

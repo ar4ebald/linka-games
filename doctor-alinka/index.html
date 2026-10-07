@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e13">
+<meta name="description" content="Реалистичный стоматолог: Алинка лечит пациента — камень, кариес, мёртвый зуб, слюна и муха. Её реакции на стриме — видео с голосом.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Доктор Алинка">
+<meta property="og:description" content="Реалистичный стоматолог: Алинка лечит пациента — камень, кариес, мёртвый зуб, слюна и муха. Её реакции на стриме — видео с голосом.">
+<meta property="og:url" content="https://ar4ebald.github.io/linka-games/doctor-alinka/">
+<meta property="og:image" content="https://ar4ebald.github.io/linka-games/doctor-alinka/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>Доктор Алинка</title>
+<style>
+:root{
+  --bg:#0a0e13; --bg2:#121922;
+  --glass:rgba(16,22,30,.64); --glass2:rgba(24,32,44,.78);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --text:#eaf0f5; --muted:#8d9aaa; --dim:#5d6876;
+  --pink:#ff5c9d; --pink2:#ff8fbe; --teal:#4fd1c5; --teal2:#8ff0e6;
+  --warn:#ffb547; --bad:#ff4d5e; --ok:#5fe08a;
+  /* self-contained: no web fonts (private build, offline / LAN, no third-party requests). Rubik / Manrope are used only if installed */
+  --fh:'Rubik',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --fb:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--fb)}
+body{position:fixed;inset:0;overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+button{font:inherit;color:inherit}
+#app{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#111923 0%,#06090d 75%)}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;overflow:hidden;background:#0b1016;touch-action:none;contain:layout paint}
+#cv{position:absolute;left:0;top:0;width:1600px;height:900px;display:block;touch-action:none}
+#cv.nocursor{cursor:none}
+
+/* ---------- HUD ---------- */
+#hud{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s}
+#hud.on{opacity:1}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05)}
+
+#tray{position:absolute;left:18px;top:96px;width:232px;padding:12px;pointer-events:auto}
+#tray h3,#clip h3{margin:2px 4px 10px;font:700 15px/1 var(--fh);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+#tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tool{position:relative;height:98px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.015));display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:transform .12s,border-color .15s,background .15s,box-shadow .15s;overflow:hidden;touch-action:manipulation}
+.tool:hover{border-color:var(--line2);background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03))}
+.tool:active{transform:scale(.95)}
+.tool.sel{border-color:var(--pink);background:linear-gradient(160deg,rgba(255,92,157,.28),rgba(255,92,157,.06));box-shadow:0 0 0 2px rgba(255,92,157,.35),0 0 24px rgba(255,92,157,.35)}
+.tool img,.tool canvas{width:84px;height:84px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.tool .k{position:absolute;left:8px;top:6px;font:700 13px/1 var(--fh);color:var(--dim)}
+.tool.sel .k{color:var(--pink2)}
+.tool .nm{position:absolute;left:0;right:0;bottom:5px;font:700 12px/1 var(--fb);color:var(--muted);text-align:center;letter-spacing:.02em}
+.tool.sel .nm{color:#fff}
+#tip{position:absolute;left:262px;top:0;padding:10px 14px;border-radius:14px;background:var(--glass2);border:1px solid var(--line2);font:600 17px/1.3 var(--fb);white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .15s,transform .15s;pointer-events:none;z-index:5}
+#tip b{display:block;font:700 19px/1.2 var(--fh);color:#fff;margin-bottom:2px}
+#tip.on{opacity:1;transform:none}
+#snd{position:absolute;left:18px;top:18px;width:62px;height:62px;border-radius:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;font-size:26px}
+#snd svg,#tsnd svg{width:28px;height:28px}
+
+#meter{position:absolute;left:calc(50% - 280px);top:14px;width:560px;height:72px;display:flex;align-items:center;gap:14px;padding:8px 18px 8px 10px}
+#face{position:relative;width:60px;height:60px;flex:none}
+#face canvas,#face img{position:absolute;left:6px;top:6px;width:48px;height:48px;border-radius:50%;object-fit:cover}
+#face svg{position:absolute;inset:0;width:60px;height:60px;transform:rotate(-90deg)}
+#ring{transition:stroke-dashoffset .25s linear}
+#bar{flex:1;display:flex;flex-direction:column;gap:6px}
+#bar .lbl{display:flex;justify-content:space-between;font:700 14px/1 var(--fb);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+#bar .lbl span:last-child{color:var(--teal2);text-transform:none;letter-spacing:0}
+#track{position:relative;height:14px;border-radius:8px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid var(--line)}
+#fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:8px;background:linear-gradient(90deg,#4fd1c5 0%,#ffd166 45%,#ff7a45 72%,#ff3355 100%);background-size:540px 100%;transition:width .12s linear}
+#track i{position:absolute;top:0;bottom:0;width:2px;background:rgba(0,0,0,.35)}
+#lives{display:flex;gap:6px;flex:none}
+#lives svg{width:30px;height:34px;transition:opacity .3s,transform .3s}
+#lives svg.lost{opacity:.18;transform:scale(.8) rotate(-12deg)}
+
+#stream{position:absolute;right:16px;top:16px;width:300px;height:169px;border-radius:16px;overflow:hidden;background:#05080b;border:1px solid var(--line2);box-shadow:0 12px 40px rgba(0,0,0,.5);transform-origin:100% 0;transition:scale .45s cubic-bezier(.2,1.2,.4,1)}
+#stream video,#stream img,#stream .pf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#stream.kcrop img{object-position:38% 22%;scale:1.55;transform-origin:38% 25%}
+#stream .pf{display:none;background:radial-gradient(circle at 40% 35%,#ff8fbe 0,#a53a6e 40%,#2a0f1f 100%);align-items:center;justify-content:center;font:900 34px/1 var(--fh);color:rgba(255,255,255,.9);text-shadow:0 3px 10px rgba(0,0,0,.4)}
+#stream.nopost .pf{display:flex}
+#stream.nopost img{display:none}
+#stream video{opacity:0;transition:opacity .2s}
+#stream.vid video{opacity:1}
+#stream .live{position:absolute;left:10px;top:10px;padding:5px 9px;border-radius:7px;background:#e8173f;font:800 13px/1 var(--fh);letter-spacing:.06em;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+#stream .live b{display:inline-block;animation:blink 1.2s infinite}
+#stream .who{position:absolute;left:10px;bottom:9px;padding:4px 8px;border-radius:7px;background:rgba(0,0,0,.55);font:700 13px/1 var(--fb);color:#fff}
+#stream .vw{position:absolute;right:10px;top:10px;padding:5px 8px;border-radius:7px;background:rgba(0,0,0,.55);font:700 12px/1 var(--fb);color:#fff}
+/* poster fallback (no video playing): slow breathing; reactions run on top of it */
+#stream:not(.vid) img{animation:breathe 4.6s ease-in-out infinite}
+#stream.react-fail img{animation:shakeX .45s,breathe 4.6s ease-in-out infinite}
+#stream.react-laugh img,#stream.react-win img{animation:bounce .6s,breathe 4.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{translate:0 0}50%{translate:0 -2px}}
+@keyframes blink{50%{opacity:.2}}
+@keyframes shakeX{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes bounce{30%{transform:translateY(-5px) scale(1.04)}60%{transform:translateY(2px)}}
+
+#bubbles{position:absolute;z-index:3;right:16px;top:194px;width:300px;transition:top .45s;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.bubble{position:relative;max-width:290px;padding:10px 14px;border-radius:16px 4px 16px 16px;background:#fff;color:#1a1420;font:700 18px/1.25 var(--fb);box-shadow:0 8px 24px rgba(0,0,0,.35);animation:pop .25s cubic-bezier(.2,1.6,.4,1)}
+.bubble::before{content:'';position:absolute;right:16px;top:-8px;border:8px solid transparent;border-top:0;border-bottom-color:#fff}
+.bubble.out{animation:fadeout .3s forwards}
+@keyframes pop{from{transform:scale(.6) translateY(-8px);opacity:0}}
+@keyframes fadeout{to{opacity:0;transform:translateY(-6px)}}
+
+#clip{position:absolute;right:16px;top:300px;width:300px;padding:14px 14px 10px}
+#clock{display:flex;justify-content:space-between;align-items:flex-end;padding:2px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:10px}
+#clock .t{font:800 38px/1 var(--fh);font-variant-numeric:tabular-nums;color:#fff}
+#clock .t.low{color:var(--bad);animation:blink .8s infinite}
+#clock .s{text-align:right;font:800 26px/1 var(--fh);color:var(--pink2);font-variant-numeric:tabular-nums}
+#clock small{display:block;font:700 12px/1 var(--fb);color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+#list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+#list li{display:flex;gap:10px;align-items:flex-start;padding:8px 6px;border-radius:12px;transition:background .3s}
+#list li .bx{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .25s}
+#list li .bx svg{width:18px;height:18px;stroke:#0a0e13;stroke-width:3.4;fill:none;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .35s .1s}
+#list li .tx{flex:1;min-width:0}
+#list li .nm{font:700 19px/1.15 var(--fh);color:var(--text)}
+#list li .nm em{font-style:normal;color:var(--muted);font-weight:500;margin-left:6px}
+#list li .rc{font:600 13px/1.3 var(--fb);color:var(--muted);margin-top:3px}
+#list li .rc b{color:var(--teal2);font-weight:700}
+#list li.done .bx{background:var(--ok);border-color:var(--ok)}
+#list li.done .bx svg{stroke-dashoffset:0}
+#list li.done .nm{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(255,255,255,.35)}
+#list li.done .rc{display:none}
+#list li.flash{background:rgba(95,224,138,.18)}
+
+/* top centre under the discomfort bar: the bottom of the mouth (lower tartar) is the main work area */
+#toast{position:absolute;left:50%;top:96px;transform:translate(-50%,-12px);padding:12px 22px;border-radius:16px;background:rgba(14,19,26,.86);border:1px solid var(--line2);font:700 21px/1.25 var(--fb);color:#fff;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;max-width:1000px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast.warn{border-color:rgba(255,181,71,.55)}
+#toast.bad{border-color:rgba(255,77,94,.6)}
+#toast.good{border-color:rgba(95,224,138,.55)}
+
+#vig{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(255,0,30,0) 45%,rgba(200,0,20,.55) 85%,rgba(140,0,10,.85) 100%)}
+#numb{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;background:radial-gradient(ellipse at center,rgba(80,200,255,0) 60%,rgba(80,200,255,.13) 100%)}
+
+/* ---------- screens ---------- */
+.screen{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:20}
+.screen.on{display:flex}
+#title{justify-content:flex-start;background:#0b1016;overflow:hidden}
+#title{background:radial-gradient(ellipse at 75% 45%,#2a1520 0%,#0b1016 62%)}
+#title .art{position:absolute;right:56px;top:50%;width:880px;height:495px;margin-top:-248px;object-fit:cover;border-radius:30px;border:1px solid var(--line2);box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 10px rgba(255,255,255,.03),0 0 120px rgba(255,92,157,.18)}
+#title .shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(8,11,16,.55),rgba(8,11,16,0) 25%)}
+#title .art.missing{display:none}
+#title .box{position:relative;margin-left:80px;width:540px}
+#title .tag{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,92,157,.16);border:1px solid rgba(255,92,157,.45);font:800 15px/1 var(--fh);letter-spacing:.14em;text-transform:uppercase;color:var(--pink2)}
+#title .tag b{width:9px;height:9px;border-radius:50%;background:#ff2e63;animation:blink 1.2s infinite}
+#title h1{margin:22px 0 14px;font:900 104px/.92 var(--fh);letter-spacing:-.02em;color:#fff;text-shadow:0 8px 40px rgba(0,0,0,.5)}
+#title h1 span{display:block;background:linear-gradient(90deg,#ff7ab0,#ffb3d1);-webkit-background-clip:text;background-clip:text;color:transparent}
+#title p.sub{margin:0 0 34px;font:600 23px/1.4 var(--fb);color:#c7d0da;max-width:520px}
+.row{display:flex;gap:14px;align-items:center}
+.btn{height:78px;padding:0 40px;border-radius:22px;border:0;cursor:pointer;font:800 28px/1 var(--fh);letter-spacing:.01em;background:linear-gradient(180deg,#ff6fa8,#f0367e);color:#fff;box-shadow:0 12px 34px rgba(240,54,126,.45),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .12s,filter .15s,opacity .2s;touch-action:manipulation}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:scale(.96)}
+.btn[disabled]{opacity:.5;cursor:default;filter:grayscale(.4)}
+.btn.ghost{background:rgba(255,255,255,.07);border:1px solid var(--line2);box-shadow:none;color:var(--text)}
+.btn.icon{width:78px;padding:0;display:flex;align-items:center;justify-content:center}
+#title .hint{margin-top:34px;font:600 18px/1.4 var(--fb);color:var(--muted)}
+#title .hint b{color:var(--teal2)}
+#title .best{margin-top:10px;font:700 17px/1 var(--fb);color:var(--dim)}
+
+#win,#lose{background:rgba(5,8,12,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding-right:480px}
+/* end cards: her stream window (the payoff of the gift) rises above the blur, bigger, with its subtitle */
+body.ending #stream{z-index:30;scale:1.5}
+body.ending #bubbles{z-index:30;top:280px;width:450px}
+body.ending .bubble{max-width:450px}
+.card{width:640px;padding:44px 48px 40px;text-align:center;border-radius:30px;background:linear-gradient(180deg,rgba(28,36,48,.92),rgba(14,19,26,.94));border:1px solid var(--line2);box-shadow:0 30px 90px rgba(0,0,0,.6);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+.card h2{margin:0 0 8px;font:900 64px/1 var(--fh);color:#fff}
+.card .why{margin:0 0 22px;font:600 21px/1.4 var(--fb);color:var(--muted)}
+#stars{display:flex;justify-content:center;gap:18px;margin:18px 0 18px}
+#stars svg{width:96px;height:96px;transform:scale(.4);opacity:.18;transition:transform .45s cubic-bezier(.2,1.8,.4,1),opacity .3s}
+#stars svg.on{transform:scale(1);opacity:1}
+.stats{display:flex;justify-content:center;gap:36px;margin:6px 0 30px}
+.stats div{font:600 15px/1 var(--fb);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.stats b{display:block;margin-top:8px;font:800 40px/1 var(--fh);color:#fff;letter-spacing:0;text-transform:none}
+.stats b.rec{color:var(--warn)}
+.card .row{justify-content:center}
+.btn .soon{display:block;font:700 13px/1 var(--fb);opacity:.8;margin-top:5px;letter-spacing:.06em;text-transform:uppercase}
+.btn.ghost.next{height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#lose .card h2{color:#ff8a96}
+#lose .emo{font-size:84px;line-height:1;margin-bottom:12px}
+
+#loading{background:#0b1016;flex-direction:column;gap:22px}
+#loading .spin{width:64px;height:64px;border-radius:50%;border:5px solid rgba(255,255,255,.1);border-top-color:var(--pink);animation:spin .9s linear infinite}
+#loading p{margin:0;font:700 22px/1.4 var(--fb);color:var(--muted)}
+#loading p b{color:var(--teal2)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#rotate{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;text-align:center;background:#0a0e13;font:800 24px/1.35 var(--fh);color:#fff}
+#rotate svg{width:110px;height:110px;animation:rot 2.2s ease-in-out infinite}
+#rotate small{display:block;font:600 16px/1.4 var(--fb);color:var(--muted)}
+@keyframes rot{0%,20%{transform:rotate(0)}50%,80%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+@media (orientation:portrait) and (max-width:1024px){#rotate{display:flex}}
+/* phones: the stage is scaled to ~0.4, so bump the small print */
+/* the stage is ~0.43 there: panels are scaled up (they also use the letterbox bars beside the 16:9 canvas,
+   see resize() in game.js), the tray goes 3-wide, per-step recipes are hidden */
+body.small .tool .nm,body.small .tool .k{display:none}
+body.small #snd{scale:1.3;transform-origin:0 0}
+body.small #tray{top:118px;width:auto;scale:1.32;transform-origin:0 0}
+body.small #tools{grid-template-columns:repeat(3,94px)}
+body.small .tool{height:94px}
+body.small .tool img,body.small .tool canvas{width:88px;height:88px}
+body.small #meter{scale:1.25;transform-origin:50% 0}
+body.small #bar .lbl{font-size:17px}
+body.small #stream{scale:1.3}
+body.small #stream .live,body.small #stream .who,body.small #stream .vw{font-size:15px}
+body.small #bubbles{top:246px;width:390px}
+body.small .bubble{font-size:25px;max-width:390px}
+body.small #clip{top:336px;scale:1.32;transform-origin:100% 0}
+body.small #clock small{font-size:16px}
+body.small #clock .t{font-size:44px}
+body.small #clock .s{font-size:32px}
+body.small #list li{padding:6px}
+body.small #list li .nm{font-size:24px}
+body.small #list li .rc{display:none}
+body.small #toast{font-size:30px;padding:14px 26px;top:114px}
+body.small .card{scale:1.3}
+body.small.ending #stream{scale:1.6}
+body.small.ending #bubbles{top:296px;width:480px}
+body.small.ending .bubble{max-width:480px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="cv" width="1600" height="900"></canvas>
+    <div id="numb"></div>
+    <div id="vig"></div>
+
+    <div id="hud">
+      <button id="snd" class="glass" title="Звук" aria-label="Звук"></button>
+
+      <div id="tray" class="glass">
+        <h3>Инструменты</h3>
+        <div id="tools"></div>
+        <div id="tip"></div>
+      </div>
+
+      <div id="meter" class="glass">
+        <div id="face">
+          <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="27" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/><circle id="ring" cx="30" cy="30" r="27" fill="none" stroke="#6fd8ff" stroke-width="4" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="169.6"/></svg>
+        </div>
+        <div id="bar">
+          <div class="lbl"><span>Дискомфорт</span><span id="anest"></span></div>
+          <div id="track"><div id="fill"></div><i style="left:30%"></i><i style="left:60%"></i><i style="left:85%"></i></div>
+        </div>
+        <div id="lives"></div>
+      </div>
+
+      <div id="stream" class="nopost">
+        <img id="poster" alt="">
+        <div class="pf">Алинка</div>
+        <video id="vid" muted playsinline webkit-playsinline preload="auto"></video>
+        <div class="live"><b>●</b> LIVE</div>
+        <div class="vw" id="viewers">👁 1 337</div>
+        <div class="who">smilelinka</div>
+      </div>
+      <div id="bubbles"></div>
+
+      <div id="clip" class="glass">
+        <div id="clock">
+          <div><small>Время</small><div class="t" id="time">2:30</div></div>
+          <div class="s"><small>Очки</small><span id="score">0</span></div>
+        </div>
+        <h3 id="ptitle">Пациент</h3>
+        <ul id="list"></ul>
+      </div>
+
+      <div id="toast"></div>
+    </div>
+
+    <div id="loading" class="screen on">
+      <div class="spin"></div>
+      <p>Загрузка… <b>Ходите во время к стоматологу</b></p>
+    </div>
+
+    <div id="title" class="screen">
+      <img class="art" id="keyart" alt="">
+      <div class="shade"></div>
+      <div class="box">
+        <div class="tag"><b></b> приём открыт</div>
+        <h1>Доктор<span>Алинка</span></h1>
+        <p class="sub">Камень, кариес, мёртвый зуб и муха, которую кто-то сглазил. Пациент ждёт в кресле.</p>
+        <div class="row">
+          <button class="btn" id="start" disabled>Начать приём</button>
+          <button class="btn ghost icon" id="tsnd" title="Звук" aria-label="Звук"></button>
+        </div>
+        <div class="hint">Подсказка: <b>Ходите во время к стоматологу</b></div>
+        <div class="best" id="best"></div>
+        <div class="hint ai-note">Фанатская игра-подарок для Линки. Картинки, видео и голос сделаны нейросетью Grok. (если что это просто игра)</div>
+      </div>
+    </div>
+
+    <div id="win" class="screen">
+      <div class="card">
+        <h2>УРА ПОБЕДА</h2>
+        <p class="why">Пациент ушёл с идеальной улыбкой</p>
+        <div id="stars"></div>
+        <div class="stats">
+          <div>Очки<b id="wscore">0</b></div>
+          <div>Время<b id="wtime">0:00</b></div>
+          <div>Рекорд<b id="wbest">0</b></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="again1">Ещё раз</button>
+          <button class="btn ghost next" disabled>Дальше<span class="soon">скоро</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="lose" class="screen">
+      <div class="card">
+        <div class="emo">🏃</div>
+        <h2>Пациент сбежал</h2>
+        <p class="why" id="lwhy">Три срыва — и он уже в маршрутке</p>
+        <div class="row"><button class="btn" id="again2">Ещё раз</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="rotate">
+    <svg viewBox="0 0 100 100" fill="none" stroke="#ff8fbe" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="32" y="12" width="36" height="76" rx="7"/><line x1="45" y1="78" x2="55" y2="78"/></svg>
+    <div>Поверни телефон горизонтально<small>Приём идёт только в альбомной ориентации</small></div>
+  </div>
+</div>
+<script src="sfx.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
