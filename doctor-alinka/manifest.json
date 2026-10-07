@@ -1,6 +1,9 @@
 {
  "version": 1,
  "keyart": "assets/keyart.jpg",
+ "leaderboard": {
+  "url": "https://script.google.com/macros/s/AKfycbyEC7v98kB_i2Q4p4bS7qy68NBAt9BnhHG7XYkB1xjKjZCPk1cmR4s4QK6GYmEzBZ7UrQ/exec"
+ },
  "patients": [
   {
    "id": "p1",

@@ -110,6 +110,9 @@ function walkLine(pts, step, cb) {
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
 function fmtTime(s) { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+// leaderboard.js is optional: every call is guarded, a missing / broken file never breaks the game
+function lb(fn, ...a) { try { const o = window.LB; if (o && typeof o[fn] === 'function') return o[fn](...a); } catch (e) { console.error(e); } return undefined; }
+const NULL_RUN = { ms: 0, tainted: false, action() {}, setPaused() {}, step() {}, hold() {}, holdDone() {}, wiggle() {}, tool() {}, taint() {}, fake() {}, finish() {}, result() { return { ms: 0, log: null }; } };
 
 function loadImage(src) {
   return new Promise((res) => {
@@ -170,7 +173,7 @@ for (const ev of ['pointerdown', 'touchstart', 'keydown']) window.addEventListen
    global state
    ====================================================================== */
 const G = {
-  man: null, pat: null, img: {}, ready: false,
+  man: null, pat: null, img: {}, ready: false, flushDt: 0, // flushDt: tool time already applied by pointerup flushes this frame
   BW: 1600, BH: 900, u: 1,
   base: null, mouth: null, mouthBB: null, teeth: [], teethJson: false,
   mask: null, maskDil: null, maskA: null, teethPts: [],
@@ -205,6 +208,7 @@ function resize() {
   const SW = Math.max(W, Math.floor(vw / k));
   G.SW = SW; G.cox = Math.round((SW - W) / 2);
   stage.style.width = SW + 'px';
+  stage.style.setProperty('--sw', String(SW)); // CSS fits the wide win card next to the stream window
   cv.style.left = G.cox + 'px';
   const ox = (vw - SW * k) / 2, oy = (vh - H * k) / 2;
   G.ox = ox; G.oy = oy;
@@ -232,6 +236,7 @@ function updatePaused() {
   if (freeze !== G.paused) { G.paused = freeze; if (freeze) cancelPointer(); }
   if (quiet === G.quiet) return;
   G.quiet = quiet;
+  if (G.L && G.L.run) G.L.run.setPaused(quiet); // the speed-run clock stops with the game (portrait / hidden tab)
   if (quiet) { S.stopAll(); Stream.pause(); } else Stream.resume();
 }
 function computeView() {
@@ -1055,7 +1060,9 @@ function buildLevel() {
     invuln: 0, shake: 0, vig: 0, flyT: rand(CFG.flyMin, CFG.flyMax), fly: null, parts: [], pops: [],
     probs: [], winT: -1, over: false, injected: false, cd: {}, t: 0, measureT: 0, tickS: -1, salHint: false,
     foam: poolLayer('foam'), dust: poolLayer('dust'), blood: poolLayer('blood'), tooth: null, wipes: [],
+    run: lb('newRun') || NULL_RUN, // speed-run clock + log for the leaderboard
   };
+  L.run.setPaused(G.quiet);
   let seed = 100, cavN = 0;
   const step = G.sm;
   (G.pat.problems || []).forEach((src, si) => {
@@ -1189,6 +1196,7 @@ function orderError(txt) {
 function completeProblem(p, bx, by) {
   if (p.done || G.L.over) return;
   p.done = true;
+  G.L.run.step(p.type);
   // leftovers that were allowed to stay (foam on the tongue, the last dust / blood) go away with the item
   if (p.type === 'plaque') G.L.foam.fade = true;
   addScore(CFG.score.item, bx, by, '#ffd166');
@@ -1196,7 +1204,7 @@ function completeProblem(p, bx, by) {
   for (let i = 0; i < 14; i++) spark(bx, by);
   updateChecklist(p.type);
   const left = G.L.probs.filter((q) => !q.done).length;
-  if (left === 0) { G.L.winT = 1.1; }
+  if (left === 0) { G.L.winT = 1.1; G.L.run.finish(); } // the run time stops on the last closed item, not after the 1.1 s outro
   else if (!Stream.speaking && cool('laugh', 20)) Stream.play('laugh'); // not more often than every 20 s
 }
 function spark(bx, by) { G.L.parts.push({ k: 'spark', x: bx, y: by, vx: rand(-90, 90) * G.u, vy: rand(-110, 40) * G.u, life: rand(0.4, 0.8), t: 0, s: rand(1.2, 2.6) * G.u }); }
@@ -1443,8 +1451,15 @@ cv.addEventListener('pointermove', (e) => {
 cv.addEventListener('pointerup', (e) => {
   if (e.pointerId !== P.id || !P.down) return;
   setPtr(e);
-  // flush a stroke that started and ended between two frames (fast flicks)
-  if (P.path.length > 1 && G.screen === 'play' && G.L && !G.paused) { P.path.push([P.bx, P.by]); try { toolUpdate(1 / 60); } catch (err) { console.error(err); } }
+  // flush a stroke that started and ended between two frames (fast flicks). Its dt is the real time since
+  // the last frame minus what earlier flushes already used, and the next frame's tool update gets that much
+  // less: an autoclicker (down-move-up many times per frame) cannot add drill / lamp / scrape time
+  if (P.path.length > 1 && G.screen === 'play' && G.L && !G.paused && !G.quiet) {
+    P.path.push([P.bx, P.by]);
+    const fdt = clamp(Math.min(0.05, (performance.now() - last) / 1000) - G.flushDt, 0, 1 / 60); // 0.05 = the frame dt cap
+    G.flushDt += fdt;
+    try { toolUpdate(fdt); } catch (err) { console.error(err); }
+  }
   P.down = false; onUp(); if (P.type !== 'mouse') P.inside = false;
 });
 cv.addEventListener('pointercancel', (e) => { if (e.pointerId === P.id) cancelPointer(); });
@@ -1454,6 +1469,8 @@ cv.addEventListener('pointerleave', () => { if (!P.down) P.inside = false; });
 cv.addEventListener('contextmenu', (e) => e.preventDefault());
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return; // holding a tool key must not toggle it on and off
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; // typing a nick
+  if (lb('isModalOpen')) return; // the «Лидеры» overlay owns the keyboard (Esc closes it)
   const onBtn = e.target && e.target.tagName === 'BUTTON'; // a focused button handles Space / Enter itself
   if (G.screen !== 'play') { if ((e.key === 'Enter' || e.key === ' ') && G.screen === 'title' && G.ready && !onBtn) { e.preventDefault(); startGame(); } return; }
   const i = TOOL_KEYS.indexOf(e.key);
@@ -1466,6 +1483,7 @@ function onDown() {
   if (G.screen !== 'play' || !G.L || G.L.over) return;
   const L = G.L, u = G.u;
   P.consumed = false;
+  if (G.tool) L.run.action(); // the speed-run clock starts on the first touch with a tool
   const f = L.fly;
   if (f && (f.state === 'sit' || f.state === 'in')) {
     const [fbx, fby] = toBase(P.fx, P.fy); // the finger itself counts too, not only the lifted tool tip
@@ -1499,7 +1517,7 @@ function onMove() {
       if (Math.abs(lat) > 5 * u) {
         const s = Math.sign(lat);
         if (s !== D.sgn) {
-          if (D.sgn !== 0) { D.rev++; S.play('squeak'); if (D.rev % 2 === 0) addPart({ k: 'blood', x: D.root[0], y: D.root[1], vx: rand(-30, 30) * u, vy: rand(-20, 30) * u, life: 0.6, t: 0, s: 1.2 * u }); }
+          if (D.sgn !== 0) { D.rev++; L.run.wiggle(); S.play('squeak'); if (D.rev % 2 === 0) addPart({ k: 'blood', x: D.root[0], y: D.root[1], vx: rand(-30, 30) * u, vy: rand(-20, 30) * u, life: 0.6, t: 0, s: 1.2 * u }); }
           D.sgn = s;
           D.loosen = Math.min(1, D.rev / 6);
           if (D.loosen >= 1 && D.state === 'dead') { D.state = 'loose'; hint(`Шатается! Теперь тяни ${pullWord(D)}`, 'good'); }
@@ -1551,6 +1569,7 @@ function selectTool(id) {
   if (G.L && G.L.tooth && G.L.tooth.grab && G.L.tooth.state !== 'pulled') G.L.tooth.grab = false;
   if (G.L) for (const p of G.L.probs) if (p.type === 'food' && p.state === 'held') p.state = 'back';
   G.tool = id === G.tool ? null : id;
+  if (G.tool && G.L && G.screen === 'play') G.L.run.tool();
   S.stopTools();
   if (G.tool) S.play('pick'); else S.play('click');
   refreshTray();
@@ -1635,13 +1654,14 @@ function toolUpdate(dt) {
     if (c && c.state === 'decay') {
       load = 1;
       c.drill = Math.min(1, c.drill + (dt / CFG.drillTime) * eff);
+      L.run.hold('drill', c, dt);
       erase(c.layer, c.x + rand(-2, 2) * u, c.y + rand(-2, 2) * u, c.r * 1.25, dt * 1.6 * eff);
       addPain(CFG.pain.drill * dt);
       if (Math.random() < 0.5) { const a = rand(0, TAU), r = rand(0.3, 1.2) * c.r; stamp(L.dust, SPR.dust, c.x + Math.cos(a) * r, c.y + Math.sin(a) * r, rand(0.4, 0.8) * c.r, rand(0.35, 0.7)); }
       if (Math.random() < 0.6) addPart({ k: 'dust', x: c.x + rand(-3, 3) * u, y: c.y + rand(-3, 3) * u, vx: rand(-40, 40) * u, vy: rand(-50, 10) * u, life: rand(0.5, 1.1), t: 0, s: rand(2, 5) * u });
       if (eff < 1) hintCD('salslow2', 'Слюни мешают! Бор работает вдвое хуже', 'warn', 5);
       if (c.drill >= 1) {
-        c.state = 'drilled'; c.layer.clear();
+        c.state = 'drilled'; c.layer.clear(); L.run.holdDone('drill', c);
         for (let i = 0; i < 6; i++) { const a = rand(0, TAU), r = rand(0.2, 1.1) * c.r; stamp(L.dust, SPR.dust, c.x + Math.cos(a) * r, c.y + Math.sin(a) * r, rand(0.6, 0.9) * c.r, 0.7); }
         c.dustRegion.setInitial();
         step(c.x, c.y);
@@ -1660,7 +1680,9 @@ function toolUpdate(dt) {
     const c = cavityAt(P.bx, P.by, 2.4);
     if (c && c.state === 'filled') {
       c.cure = Math.min(1, c.cure + dt / CFG.cureTime);
+      L.run.hold('lamp', c, dt);
       if (c.cure >= 1) {
+        L.run.holdDone('lamp', c);
         c.state = 'cured'; c.anim = 0; S.play('beep', { n: 2 }); step(c.x, c.y);
         for (let i = 0; i < 10; i++) spark(c.x, c.y);
         completeProblem(c, c.x, c.y);
@@ -1749,7 +1771,8 @@ function update(dt) {
   L.vig = Math.max(0, L.vig - dt * 1.3);
 
   // once the level is decided (fatal flinch, time out) only particles / HUD keep running
-  if (!L.over) { updateFly(dt); toolUpdate(dt); measure(dt); }
+  if (!L.over) { updateFly(dt); toolUpdate(Math.max(0, dt - G.flushDt)); measure(dt); }
+  G.flushDt = 0;
   runWipes(dt);
 
   // layers fading after completion
@@ -2326,6 +2349,7 @@ function setScreen(s) { G.screen = s; show(s); refreshTray(); }
 function startGame() {
   if (!G.ready) return;
   clearTimers(); clearHint(); // nothing from the previous run (stars, flinch->lose, toasts) fires into this one
+  lb('reset'); // a leaderboard request still in flight must not land on the next win card
   if (G.L) releaseAll();
   P.down = false;
   S.unlock(); S.stopAll(); S.play('click');
@@ -2348,11 +2372,14 @@ function win() {
   if (tf >= CFG.stars.three.time && L.flinches <= CFG.stars.three.flinch) stars = 3;
   const rec = L.score > G.best; if (rec) { G.best = L.score; lsSet('da.best', String(G.best)); }
   $('#wscore').textContent = L.score;
-  $('#wtime').textContent = fmtTime(CFG.levelTime - L.time);
+  L.run.finish(); // no-op normally (it stopped on the last item)
+  const run = L.run.result();
+  $('#wtime').textContent = fmtTime(CFG.levelTime - L.time); // leaderboard.js overwrites it with the run time "1:07,3"
   const wb = $('#wbest'); wb.textContent = G.best; wb.classList.toggle('rec', rec);
   const st = $('#stars'); st.innerHTML = STAR_SVG + STAR_SVG + STAR_SVG;
   [...st.children].forEach((s, i) => { if (i < stars) later(() => { if (G.L === L && G.screen === 'win') { s.classList.add('on'); S.play('star', { index: i + 1 }); } }, 450 + i * 380); });
   L.stars = stars;
+  lb('showWin', { ms: run.ms, flinches: L.flinches, stars, score: L.score, log: run.log, tainted: !!L.run.tainted || DEBUG_PUBLIC });
   setScreen('win'); updateTitleBest();
   S.play('win'); Stream.play('win', LINES.win);
   updateHUD();
@@ -2365,7 +2392,10 @@ function lose(why) {
   if (why === 'time') S.play('fail'); else { S.play('whoosh'); S.play('fail', { pitch: 0.8, volume: 0.8 }); } // fled: lower than the flinch's fail
   Stream.play('fail', why === 'time' ? pick(LINES.order) : null, { force: true }); // her reaction interrupts the last line
 }
-function updateTitleBest() { $('#best').textContent = G.best ? `Рекорд: ${G.best}` : ''; }
+function updateTitleBest() {
+  const ms = lb('bestMs') || 0, tm = ms && lb('fmtMs', ms);
+  $('#best').textContent = [G.best ? `Рекорд: ${G.best} очков` : '', tm ? `лучшее время ${tm}` : ''].filter(Boolean).join(' · ');
+}
 function setMuted(m) {
   G.muted = m; lsSet('da.muted', m ? '1' : '0');
   S.call('setMuted', m); Stream.setMuted(m);
@@ -2375,7 +2405,7 @@ function setMuted(m) {
 /* ======================================================================
    main loop
    ====================================================================== */
-let last = 0;
+let last = 0; // rAF timestamp of the last frame (performance.now() clock)
 function frame(ts) {
   const dt = Math.min(0.05, last ? (ts - last) / 1000 : 0.016);
   last = ts;
@@ -2424,6 +2454,7 @@ async function boot() {
     } else G.toolSpr[id] = makeToolSprite(id);
   }
   buildTray();
+  lb('init', { manifest: man, cfg: { levelTime: CFG.levelTime, drillTime: CFG.drillTime, cureTime: CFG.cureTime, stars: CFG.stars } });
   Stream.init(man.alinka || {});
   await setupPatient(man.patients[0]);
   G.L = null;
@@ -2447,7 +2478,15 @@ function solveOne(p) {
     case 'dead': p.grab = false; p.state = 'implanted'; p.snap = 1; p.dropAt = null; L.blood.clear(); completeProblem(p, p.c[0], p.c[1]); break;
   }
 }
-window.DA = {
+// DA (DA.win() and friends) only exists on a dev host or with ?debug=1; nothing in the game depends on it.
+// A run touched by a state-changing DA call is "tainted" and never goes to the real leaderboard. With ?debug=1
+// on the public host every run is tainted (DA.cfg / DA._G give raw access that no per-call flag can see).
+const DEV_HOST = (() => { try { const h = location.hostname; return h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h === '::1'; } catch (e) { return false; } })();
+const DEBUG_QUERY = (() => { try { return new URLSearchParams(location.search).get('debug') === '1'; } catch (e) { return false; } })();
+const DEBUG_API = DEV_HOST || DEBUG_QUERY;
+const DEBUG_PUBLIC = DEBUG_QUERY && !DEV_HOST;
+function taint() { if (G.L && G.L.run) G.L.run.taint(); }
+const DA = {
   state() {
     const L = G.L;
     return {
@@ -2464,24 +2503,29 @@ window.DA = {
     };
   },
   selectTool(id) { G.tool = null; selectTool(id || null); return G.tool; },
-  solve(type) { const L = G.L; if (!L || G.screen !== 'play') return false; const list = L.probs.filter((p) => !p.done && (type === 'all' || p.type === type)); list.forEach(solveOne); return list.length; },
-  win() { if (!G.L || G.screen !== 'play') return false; G.L.probs.forEach(solveOne); G.L.winT = -1; G.L.over = true; win(); return true; },
+  solve(type) { const L = G.L; if (!L || G.screen !== 'play') return false; taint(); const list = L.probs.filter((p) => !p.done && (type === 'all' || p.type === type)); list.forEach(solveOne); return list.length; },
+  win() { if (!G.L || G.screen !== 'play') return false; taint(); G.L.probs.forEach(solveOne); G.L.winT = -1; G.L.over = true; win(); return true; },
   lose(why) { if (!G.L || G.screen !== 'play') return false; lose(why || 'fled'); return true; },
   restart() { if (!G.ready) return false; startGame(); return true; },
   start() { return this.restart(); },
-  fly() { if (G.L && !G.L.fly) spawnFly(); return !!(G.L && G.L.fly); },
-  pain(v) { if (G.L) G.L.pain = clamp(v, 0, 100); },
-  saliva(v) { if (G.L) G.L.saliva = clamp(v, 0, 1); },
-  anesthesia(s) { if (G.L) G.L.anest = s === undefined ? CFG.anesthesia : s; },
-  time(s) { if (G.L) G.L.time = s; },
+  fly() { taint(); if (G.L && !G.L.fly) spawnFly(); return !!(G.L && G.L.fly); },
+  pain(v) { taint(); if (G.L) G.L.pain = clamp(v, 0, 100); },
+  saliva(v) { taint(); if (G.L) G.L.saliva = clamp(v, 0, 1); },
+  anesthesia(s) { taint(); if (G.L) G.L.anest = s === undefined ? CFG.anesthesia : s; },
+  time(s) { taint(); if (G.L) G.L.time = s; },
   debug(on) { G.debug = on === undefined ? !G.debug : !!on; return G.debug; },
   toScreen(bx, by) { const [lx, ly] = toLogical(bx, by); return [G.ox + (lx + G.cox) * G.k, G.oy + ly * G.k]; },
   toBase(cx, cy) { return toBase((cx - G.ox) / G.k - G.cox, (cy - G.oy) / G.k); },
   // advance the simulation synchronously (tests in throttled/background tabs)
-  tick(sec) { const n = Math.max(1, Math.round((sec || 1 / 60) * 60)); for (let i = 0; i < n; i++) update(1 / 60); render(); return DA.state().time; },
+  tick(sec) { taint(); const n = Math.max(1, Math.round((sec || 1 / 60) * 60)); for (let i = 0; i < n; i++) update(1 / 60); render(); return DA.state().time; },
+  // leaderboard UI tests: win with a believable run log of `ms` (DA.solve('all') alone gives a "too fast" run)
+  fakeRun(ms) { if (!G.L || G.screen !== 'play') return false; G.L.run.fake(ms || 67300); return DA.win(); },
+  run() { return G.L ? G.L.run.result() : null; },
+  lbReset() { return lb('mockReset'); }, // ?lbmock=1: wipe the fake board
   cfg: CFG,
   _G: G,
 };
+if (DEBUG_API) window.DA = DA;
 
 boot().catch((e) => {
   console.error(e);
